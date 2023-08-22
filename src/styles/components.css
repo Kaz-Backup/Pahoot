@@ -1,0 +1,120 @@
+
+button {
+    color: var(--color-primary-light);
+    border-radius: 3px;
+    border: none;
+    background-color: var(--color-accent);
+    cursor: pointer;
+    box-sizing: border-box;
+    vertical-align: middle;
+}
+
+
+button:active {
+    transform: scale(0.98);
+}
+
+
+button.icon i {
+    color: inherit;
+    font-size: inherit;
+    margin: 0;
+}
+
+
+button.ghost {
+    background-color: transparent !important;
+    color: var(--color-accent);
+}
+
+button.ghost:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+button.icon.light.active,
+button.icon.secondary.active {
+    outline: 4px solid var(--color-primary);
+}
+
+button.secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-light);
+}
+
+button.light {
+    background-color: var(--color-light);
+    color: var(--color-secondary);
+}
+
+
+
+
+button.huge {
+    font-size: 50px;
+    padding: 5px 20px;
+    min-width: 180px;
+}
+
+button.large {
+    font-size: 40px;
+    padding: 3px 20px;
+    min-width: 180px;
+}
+
+button.medium {
+    font-size: 30px;
+    padding: 0 20px;
+    height: 40px;
+}
+
+button.small {
+    font-size: 20px;
+    padding: 1px 20px;
+}
+
+
+button.icon {
+    padding: 0;
+    min-width: 0;
+}
+
+button.icon.huge {
+    height: 60px;
+    width: 60px;
+    font-size: 40px;
+}
+
+
+button.icon.large {
+    height: 50px;
+    width: 50px;
+    font-size: 27px;
+}
+
+button.icon.medium {
+    height: 40px;
+    width: 40px;
+    font-size: 23px;
+}
+
+button.icon.small {
+    height: 30px;
+    width: 30px;
+    font-size: 17px;
+    padding: 1px 0 0 1px;
+}
+
+
+button.icon.custom {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 40px auto;
+}
+
+button.icon.custom.blade {
+    background-image: url(../../assets/icons/blade.png);
+}
+
+button.icon.custom.banig {
+    background-image: url(../../assets/icons/banig.png);
+}

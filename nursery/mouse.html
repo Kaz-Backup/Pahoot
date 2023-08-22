@@ -1,0 +1,133 @@
+<style>
+    canvas {
+        outline: 1px solid red;
+        user-select: none;
+    }
+</style>
+
+<canvas height="500" width="500"></canvas>
+<p></p>
+
+<script>
+
+function getClientCoords(el, e) {
+    const rect = el.getBoundingClientRect();
+    const cx = e.clientX - rect.left;
+    const cy = e.clientY - rect.top;
+
+    return [ cx, cy ];
+}
+
+function distance(p1, p2) {
+    return Math.sqrt((p2[1]-p1[1])**2 + (p2[0]-p1[0])**2);
+}
+
+class MouseController {
+
+    static CLICK_THRESHOLD = 5;
+    
+    /**
+     * @param {HTMLElement} element
+     * @typedef {"span" | "spanRelease" | "click" | "down" | "hover" | "leave"} MCEvent
+     * */
+    constructor(element) {
+        this.element = element;
+        this.listeners = {};
+        
+        // element.addEventListener("click", 
+        //     e => this.trigger("click", { position: getClientCoords(element, e) }));
+        
+        element.addEventListener("mouseleave", 
+            e => this.trigger("leave", { position: getClientCoords(element, e) }));
+        
+
+        let isDown = false;
+        let downCoords;
+
+        element.addEventListener("mousedown", e => {
+            const coords = getClientCoords(element, e);
+            isDown = true;
+            downCoords = getClientCoords(element, e);
+
+            this.trigger("down", { position: coords });
+        });
+
+        element.addEventListener("mouseup", e => {
+            const coords = getClientCoords(element, e);
+            
+            if(downCoords) {
+                if(distance(coords, downCoords) <= MouseController.CLICK_THRESHOLD) {
+                    this.trigger("click", { position: getClientCoords(element, e) });
+                } else {
+                    this.trigger("spanRelease", {
+                        startPosition: downCoords,
+                        position: coords
+                    });
+                }
+            }
+            
+            isDown = false;
+            downCoords = null;
+        });
+
+        element.addEventListener("mousemove", e => {
+            const coords = getClientCoords(element, e);
+
+            if(isDown) {
+                if(distance(coords, downCoords) > MouseController.CLICK_THRESHOLD) {
+                    this.trigger("span", {
+                        startPosition: downCoords,
+                        position: coords
+                    });
+                }
+            } else {
+                this.trigger("hover", {
+                    position: coords
+                });
+            }
+        });
+
+    }
+
+    /** @param {MCEvent} event */
+    trigger(event, args) {
+        if(this.listeners[event]) this.listeners[event](args); 
+    }
+
+    /** @param {MCEvent} event
+     *  @param {(args: { position: number[], startPosition: number[] }) => any} listener
+     */
+    setListener(event, listener) {
+        this.listeners[event] = listener;
+    }
+}
+
+</script>
+<script>
+function log(m) {
+    document.querySelector("p").innerHTML = m;
+}
+
+
+function setup() {
+    const mouseController = new MouseController(document.querySelector("canvas"));
+    mouseController.setListener("span", args => {
+        const { startPosition: [ ix, iy ], position: [ x, y ] } = args;
+        log(`Spanning (${ix}, ${iy}) -> (${x}, ${y})`);
+    });
+    mouseController.setListener("spanRelease", args => {
+        const { startPosition: [ ix, iy ], position: [ x, y ] } = args;
+        log(`Spanned (${ix}, ${iy}) -> (${x}, ${y})`);
+    });
+    mouseController.setListener("click", args => {
+        const { position: [ x, y ] } = args;
+        log(`Clicked (${x}, ${y})`);
+    });
+    // mouseController.setListener("hover", args => {
+    //     const { position: [ x, y ] } = args;
+    //     log(`Hover (${x}, ${y})`);
+    // });
+}
+
+setup();
+</script>

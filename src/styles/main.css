@@ -1,0 +1,23 @@
+:root {
+    --main-width: 700px;
+    --main-ratio: calc(4/3);
+    --color-primary: #5E493F;
+    --color-primary-light: #7D5846;
+    --color-secondary: #997460;
+    --color-accent: #E7CB7A;
+    --color-light: #F7EED2;
+
+    --color-weaved: #A89F84;
+    --color-weaved-stroke: #948B6D;
+}
+
+@font-face {
+    font-family: VT323;
+    src: url("../../assets/fonts/VT323-Regular.ttf");
+}
+
+* {
+    font-family: VT323;
+    font-size: 20px;
+    color: var(--color-light);
+}

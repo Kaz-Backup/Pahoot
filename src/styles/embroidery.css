@@ -1,0 +1,12 @@
+body {
+    margin: 0;
+}
+
+.main-window.embroidery {
+    height: 100%;
+    width: 100%;
+    background-color: var(--color-weaved);
+    /* background-color: #2D2D2D; */
+    padding: 100px;
+    box-sizing: border-box;
+}

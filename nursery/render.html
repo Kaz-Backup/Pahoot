@@ -1,0 +1,307 @@
+<style>
+    .canvas-wrapper {
+        position: relative;
+    }
+
+    .canvas {
+        height: 100%;
+        width: 100%;
+        outline: 1px solid red;
+        position: relative;
+    }
+
+    .overlay {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .wb {
+        position: absolute;
+        /* outline: 1px solid blue; */
+    }
+</style>
+<style>
+    .wb svg {
+        height: 100%;
+        width: 100%;
+    }
+    
+    /* bare colors */
+    .wb svg .wb-base { fill: #B8A976; }
+    .wb svg .wb-side, .wb svg .wb-lines-fill { fill: #A39567; }
+    .wb svg .wb-lines-stroke { stroke: #A39567; }
+    
+    /* red */
+    .wb.red svg .wb-base { fill: #922C4A; }
+    .wb.red svg .wb-side, .wb.red svg .wb-lines-fill { fill: #772C42; }
+    .wb.red svg .wb-lines-stroke { stroke: #772C42; }
+    
+</style>
+<div class="canvas-wrapper">
+    <div class="canvas"></div>
+    <canvas class="overlay"></canvas>
+</div>
+<p class="stats"></p>
+<script>
+function $(selector) {
+    return document.querySelector(selector);
+}
+
+function createElement(tagName, { classList, id, listeners, innerHTML, children, attributes, fields } = {}) {
+    const element = document.createElement(tagName);
+    if(classList) for(const classTag of classList) element.classList.add(classTag);
+    if(id) element.setAttribute("id", id);
+    if(listeners) {
+        for(const event in listeners) {
+            element.addEventListener(event, listeners[event]);
+        }
+    }
+    if(innerHTML) element.innerHTML = innerHTML;
+    if(children) element.append(...children);
+    if(attributes) for(const attrName in attributes) {
+        element.setAttribute(attrName, attributes[attrName]);
+    }
+    if(fields) for(const fieldName in fields) {
+        element[fieldName] = fields[fieldName];
+    }
+
+    return element;
+}
+</script>
+<script>
+    function getPolarCoords(ox, oy, px, py) {
+        const dx = px - ox;
+        const dy = py - oy;
+
+
+        const refAng = (dx !== 0) ? 
+            Math.abs(Math.atan(dy/dx)) : Math.PI/2;
+
+        let angle = 0;
+
+        if(dx >=0 && dy >= 0) {             // Q1
+            angle = refAng
+        } else if(dx <= 0 && dy >= 0) {     // Q2
+            angle = Math.PI - refAng;
+        } else if(dx <= 0 && dy <= 0) {     // Q3
+            angle = Math.PI + refAng;
+        } else if(dx >= 0 && dy <= 0) {     // Q4
+            angle = 2*Math.PI - refAng;
+        }
+
+        const radius = Math.round(Math.sqrt(dx**2 + dy**2));
+        
+        return { angle, radius };
+    }
+
+    function getActiveRegion(angle) {
+        for(const region of Settings.bounds.activeRegions) {
+            const { bounds: [ bLower, bUpper ] } = region;
+            if(angle >= bLower && angle <= bUpper) return region;
+        }
+
+        return null;
+    }
+
+    /** @typedef {{ blockSize, color, rows, cols }} Configs **/
+    
+    function getBlockOrientation(col, row) {
+        // h - 0, v - 1
+
+        const rowInitial = row % 2;
+        const orientation = (col + rowInitial) % 2;
+        return orientation === 0 ? "h" : "v";
+    }
+
+    const SPRITES = {
+        weaved: {
+            h: `<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_15_357)"><path class="wb-base" d="M5 25L5 5H25L25 25H5Z" fill="#922C4A"/><path class="wb-lines-fill" d="M5 25H25V24H5V25Z" fill="#772C42"/><path class="wb-lines-fill" d="M5 19H25V18H5V19Z" fill="#772C42"/><path class="wb-lines-fill" d="M25 12L5 12V11L25 11V12Z" fill="#772C42"/><path class="wb-lines-fill" d="M5 6H25V5H5V6Z" fill="#772C42"/></g><defs><clipPath id="clip0_15_357"><rect width="30" height="30" fill="white"/></clipPath></defs></svg>`,
+            v: `<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_14_288)"><path class="wb-base" d="M5 5L25 5V25H5V5Z" fill="#922C4A"/><path class="wb-lines-fill" d="M5 5V25H6V5H5Z" fill="#772C42"/><path class="wb-lines-fill" d="M11 5V25H12V5H11Z" fill="#772C42"/><path class="wb-lines-fill" d="M18 25V5H19V25H18Z" fill="#772C42"/><path class="wb-lines-fill" d="M24 5V25H25V5H24Z" fill="#772C42"/></g><defs><clipPath id="clip0_14_288"><rect width="30" height="30" fill="white"/></clipPath></defs></svg>`
+        }
+    };
+
+    const Settings = {
+        bounds: {
+            idleRadius: 10,
+            dipOffset: 30,
+            activeRegions: [
+                { bounds: [ 0, Math.PI/4 ],
+                    orientation: "h", direction: 1, label: "h+" },
+                { bounds: [ Math.PI/4, 3*Math.PI/4 ],
+                    orientation: "v", direction: 1, label: "v+" },
+                { bounds: [ 3*Math.PI/4, 5*Math.PI/4 ],
+                    orientation: "h", direction: -1, label: "h-" },
+                { bounds: [ 5*Math.PI/4, 7*Math.PI/4 ],
+                    orientation: "v", direction: -1, label: "v-" },
+                { bounds: [ 7*Math.PI/4, Math.PI*2 ],
+                    orientation: "h", direction: 1, label: "h+" },
+            ]
+        }
+    };
+
+    
+
+    /** @param {Configs} configs **/
+    function renderWeaved(configs) {
+        const { blockSize, color, rows, cols } = configs; 
+        /** @type {HTMLDivElement} **/
+        const canvas = $("div.canvas");
+        const overlay = $("canvas.overlay");
+
+        const canvasWidth = blockSize * cols;
+        const canvasHeight = blockSize * rows;
+
+        canvas.parentElement.style.width = canvasWidth;
+        canvas.parentElement.style.height = canvasHeight;
+        overlay.width = canvasWidth;
+        overlay.height = canvasHeight;
+
+        canvas.innerHTML = "";
+
+
+        for(let r = 0; r < rows; r++) {
+            for(let c = 0; c < cols; c++) {
+                const orientation = getBlockOrientation(c, r);
+                const weavedBlock = createElement("div", {
+                    classList: [ "wb", color ],
+                    innerHTML: SPRITES.weaved[orientation]
+                });
+
+                // Note: sprite frames are 3/2 the block size
+                const frameScale = 3/2;
+                const frameSize = Math.ceil(frameScale * blockSize);
+
+                const offset = -(frameSize - blockSize)/2;
+                const x = c * blockSize + offset;
+                const y = r * blockSize + offset;
+
+                weavedBlock.style.left = `${x}px`;
+                weavedBlock.style.top = `${y}px`;
+                weavedBlock.style.width = `${frameSize}px`;
+                weavedBlock.style.height = `${frameSize}px`;
+                
+                canvas.append(weavedBlock);
+            }
+        }
+    }
+
+    const statsText = [];
+    function stats(prompt, row = 0) {
+        statsText[row] = prompt;
+        $(".stats").innerHTML = statsText.map(r => r + "").join("<br>");
+    }
+
+    /** @param {Configs} configs **/
+    function initOverlay(configs) {
+        const { blockSize, color, rows, cols } = configs; 
+        const { bounds: { idleRadius, dipOffset } } = Settings;
+
+        /** @type {HTMLCanvasElement} **/
+        const overlay = $(".overlay");
+        const rect = overlay.getBoundingClientRect();
+        
+        let mouseDown = false;
+        let initialDownPos = null;
+        let initialCell = null;
+        let active = false;
+        let activeRegion = null;
+        let polar = false;
+        let dipped = false;
+
+        function updateMouseEvent(event) {
+            const cx = event.clientX - rect.left;
+            const cy = event.clientY - rect.top;
+
+            
+            const col = Math.floor(cx/blockSize);
+            const row = Math.floor(cy/blockSize);
+
+            const octx = overlay.getContext("2d");
+            octx.clearRect(0, 0, blockSize*cols, blockSize*rows);
+            if(mouseDown) {
+                if(!initialDownPos) initialDownPos = [ cx, cy ];
+                if(!initialCell) initialCell = [ col, row ];
+
+                const [ ix, iy ] = initialDownPos;
+                
+                polar = getPolarCoords(0, 0, cx - ix, iy - cy);
+                active = polar.radius > idleRadius;
+                
+
+                if(active) {
+                    if(!activeRegion) activeRegion = getActiveRegion(polar.angle);
+                    if(activeRegion.orientation === "h") {
+                        const dipY = iy + dipOffset;
+                        dipped = cy > dipY;
+                    } else {
+                        const dipX = ix - dipOffset;
+                        dipped = cx < dipX;
+                    }
+                } else {
+                    dipped = false;
+                    activeRegion = null;
+                }
+                
+
+                // Draw idle range (circle)
+                octx.beginPath();
+                octx.arc(ix, iy, idleRadius, 0, 2 * Math.PI);
+                octx.strokeStyle = "blue";
+                octx.lineWidth = 1;
+                octx.stroke();
+                octx.closePath();
+
+                if(active) {
+                    // Draw dip line
+
+                    octx.beginPath();
+                    octx.strokeStyle = "green";
+                    octx.lineWidth = 1;
+                    if(activeRegion.orientation === "h") {
+                        const dipY = iy + dipOffset;
+                        octx.moveTo(0, dipY);
+                        octx.lineTo(blockSize*cols, dipY);    
+                    } else {
+                        const dipX = ix - dipOffset;
+                        octx.moveTo(dipX, 0);
+                        octx.lineTo(dipX, blockSize*rows);
+                    }
+
+                    octx.stroke();
+                }
+            } else {
+                initialDownPos = null;
+                initialCell = null;
+                active = false;
+                activeRegion = null;
+                polar = null;
+                dipped = false;
+            }
+
+
+            stats(`Position: (${cx}, ${cy})`, 0);
+            stats(`Mouse down: ${mouseDown}`, 1);
+            stats(`Cell: (${col}, ${row})`, 2);
+            stats(polar ? `Polar: (${polar.radius}, ${polar.angle*180/Math.PI})` : "", 3);
+            stats("----------------------", 4);
+            stats(`Active: ${active}`, 5);
+            stats(initialCell ? `Start cell: (${initialCell[0]}, ${initialCell[1]})` : "", 6);
+            stats(`Region: ${activeRegion?.label || ""}`, 7);
+            stats(`Dipped: ${dipped}`, 8);
+        }
+
+        overlay.addEventListener("mousemove", updateMouseEvent);
+        overlay.addEventListener("mousedown", e => (mouseDown = true) && updateMouseEvent(e));
+        overlay.addEventListener("mouseup", e => (mouseDown = false) && updateMouseEvent(e));
+        overlay.addEventListener("mouseout", e => (mouseDown = false) && updateMouseEvent(e));
+    }
+
+
+    const configs = { blockSize: 55, rows: 5, cols: 5 };
+    renderWeaved(configs);
+    initOverlay(configs);
+
+</script>

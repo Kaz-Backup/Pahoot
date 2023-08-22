@@ -1,0 +1,67 @@
+<style>
+    .d0 {
+        height: 400px;
+        width: 400px;
+        outline: 1px solid red;
+        position: relative;
+    }
+    
+    .d1 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 350px;
+        width: 350px;
+        background-color: gray;
+        z-index: 1;
+    }
+    
+    .d11 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 300px;
+        width: 300px;
+        background-color: blue;
+        z-index: 10000000;
+    }
+
+    .d12 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 250px;
+        width: 250px;
+        background-color: red;
+        z-index: 10000000;
+    }
+
+    .d2 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100px;
+        width: 100px;
+        background-color: green;
+        z-index: 1;
+    }
+
+    .d3 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 50px;
+        width: 50px;
+        background-color: yellow;
+        z-index: 1;
+    }
+</style>
+
+<div class="d0">
+    <div class="d1">
+        <div class="d11"></div>
+        <div class="d12"></div>
+    </div>
+    <div class="d2"></div>
+    <div class="d3"></div>
+</div>
