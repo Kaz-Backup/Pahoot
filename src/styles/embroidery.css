@@ -6,7 +6,72 @@ body {
     height: 100%;
     width: 100%;
     background-color: var(--color-weaved);
-    /* background-color: #2D2D2D; */
-    padding: 100px;
     box-sizing: border-box;
+}
+
+.main-window.embroidery > .blocks,
+.main-window.embroidery > .lifted,
+.main-window.embroidery > .overlay,
+.main-window.embroidery > .mouse,
+.main-window.embroidery > .actions {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.main-window.embroidery > .actions,
+.main-window.embroidery > .actions * {
+    /* pointer-events: none; */
+    pointer-events: none;
+}
+
+.main-window.embroidery > .actions button {
+    pointer-events: auto;
+}
+
+.main-window.embroidery > .actions > header {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    justify-content: space-between;
+    
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+
+.main-window.embroidery > .actions > header > .center {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    text-align: center;
+    user-select: none;
+}
+
+.main-window.embroidery > .actions > header h3 {
+    font-size: 40px;
+    font-weight: normal;
+    margin: 0px;
+    margin-top: 25px;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+
+.main-window.embroidery > .actions .color-selection {
+    margin-bottom: 10px;
+}
+
+.main-window.embroidery > .actions .subactions {
+    float: right;
+}
+
+.rendered-block {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
