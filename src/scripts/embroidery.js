@@ -56,63 +56,60 @@ const BlockSprites = {
 };
 
 
-/**
- * 
- * @param {{ id, colors: BlockColors, block: BlockSpriteType, position: number[],
- *      size: number[], parent: HTMLDivElement}} options 
- */
-function renderBlock(options) {
-    const { id, colors, block, position, size, parent } = options;
-    
-    const elementId = `rendered-block-${id}`;
-    const [ width, height ] = size;
-    const [ px, py ] = position;
+function getBlockSVG({ block, colors, size }) {
+    const tempParent = document.createElement("div");
+    tempParent.innerHTML = BlockSprites[block];
 
-    let blockElement = parent.querySelector(`#${elementId}`);
-    console.log(blockElement)
-    if(!blockElement) {
-        blockElement = document.createElement("div");
-        blockElement.id = elementId;
-        blockElement.classList.add("rendered-block");
-        blockElement.innerHTML = BlockSprites[block];
-        
-        parent.append(blockElement);
-    }
-    
-    const svgElement = blockElement.querySelector("svg");
-    
+    /** @type {HTMLOrSVGElement} */
+    const svgElement = tempParent.querySelector("svg");
+
+    const [ width, height ] = size;
     svgElement.setAttribute("height", height);
     svgElement.setAttribute("width", width);
-    blockElement.style.height = `${height}px`;
-    blockElement.style.width = `${width}px`;
-
-    blockElement.style.top = `${px}px`;
-    blockElement.style.left = `${py}px`;
 
     [...svgElement.querySelectorAll(".wb-base")].forEach(e => e.style.fill = colors.fill);
     [...svgElement.querySelectorAll(".wb-side, .wb-lines-fill")].forEach(e => e.style.fill = colors.stroke);
     [...svgElement.querySelectorAll(".wb-lines-stroke")].forEach(e => e.style.stroke = colors.stroke);
 
-        
-    /**
-     * .wb svg .wb-base { fill: #B8A976; }
-        .wb svg .wb-side, .wb svg .wb-lines-fill { fill: #A39567; }
-        .wb svg .wb-lines-stroke { stroke: #A39567; }
-        */
-    /**
-        const colors = {
-            fill: "#B8A976",
-            stroke: "#A39567"
-        };
-        */
+    return svgElement.cloneNode(true);
+}
 
+
+/**
+ * 
+ * @param {{ id, colors: BlockColors, block: BlockSpriteType, position: number[],
+ *      size: number[], parent: HTMLDivElement}} options 
+ */
+function renderWeavedBlock(options) {
+    const { id, colors, block, position, size, parent } = options;
+    
+    const elementId = `rendered-block-${id}`;
+    
+    let blockElement = id ? parent.querySelector(`#${elementId}`) : null;
+    if(!blockElement) {
+        blockElement = document.createElement("div");
+        blockElement.id = elementId;
+        blockElement.classList.add("rendered-block");
+        blockElement.append(getBlockSVG({ block, colors, size }));
+        
+        parent.append(blockElement);
+    }
+
+    const [ width, height ] = size;
+    const [ px, py ] = position;
+    
+    blockElement.style.height = `${height}px`;
+    blockElement.style.width = `${width}px`;
+
+    blockElement.style.top = `${px}px`;
+    blockElement.style.left = `${py}px`;
 }
 
 async function test() {
     await EmbroideryManager.initialize({});
     const blocksLayer = EmbroideryManager.components.layers.blocks;
     const blockSize = 100;
-    renderBlock({
+    renderWeavedBlock({
         id: "block-1",
         colors: {
             fill: "#B8A976",
