@@ -10,13 +10,40 @@ function distance(p1, p2) {
     return Math.sqrt((p2[1]-p1[1])**2 + (p2[0]-p1[0])**2);
 }
 
+function scaleVector(vector, multiplier) {
+    return [ 
+        vector[0]*multiplier,
+        vector[1]*multiplier
+    ];
+}
+function addVectors(v1, v2) {
+    return [ 
+        v1[0] + v2[0],
+        v1[1] + v2[1]
+    ];
+}
+
+function subtractVectors(v1, v2) {
+    return [ 
+        v1[0] - v2[0],
+        v1[1] - v2[1]
+    ];
+}
+
+function multiplyVectors(v1, v2) {
+    return [ 
+        v1[0] * v2[0],
+        v1[1] * v2[1]
+    ];
+}
+
 class MouseController {
 
     static CLICK_THRESHOLD = 5;
     
     /**
      * @param {HTMLElement} element
-     * @typedef {"span" | "spanRelease" | "click" | "down" | "hover" | "leave"} MCEvent
+     * @typedef { "span" | "spanRelease" | "click" | "down" | "hover" | "leave" | "scroll" } MCEvent
      * */
     constructor(element) {
         if(element) {
@@ -32,6 +59,7 @@ class MouseController {
 
             let isDown = false;
             let downCoords;
+            let spanContext = {};
 
             element.addEventListener("mousedown", e => {
                 const coords = getClientCoords(element, e);
@@ -50,8 +78,28 @@ class MouseController {
                     } else {
                         this.trigger("spanRelease", {
                             startPosition: downCoords,
-                            position: coords
+                            position: coords,
+                            context: spanContext
                         });
+                        spanContext = {};
+                    }
+                }
+                
+                isDown = false;
+                downCoords = null;
+            });
+
+            element.addEventListener("mouseout", e => {
+                const coords = getClientCoords(element, e);
+                
+                if(downCoords) {
+                    if(distance(coords, downCoords) > MouseController.CLICK_THRESHOLD) {
+                        this.trigger("spanRelease", {
+                            startPosition: downCoords,
+                            position: coords,
+                            context: spanContext
+                        });
+                        spanContext = {};
                     }
                 }
                 
@@ -66,7 +114,8 @@ class MouseController {
                     if(distance(coords, downCoords) > MouseController.CLICK_THRESHOLD) {
                         this.trigger("span", {
                             startPosition: downCoords,
-                            position: coords
+                            position: coords,
+                            context: spanContext
                         });
                     }
                 } else {
@@ -74,6 +123,13 @@ class MouseController {
                         position: coords
                     });
                 }
+            });
+
+            element.addEventListener("wheel", e => {
+                if(e.deltaY === 0) return;
+                const direction = e.deltaY < 0 ? 1 : -1;
+                const coords = getClientCoords(element, e);
+                this.trigger("scroll", { direction, position: coords });
             });
         }
     }
@@ -254,6 +310,51 @@ class EmbroiderMatrix {
             frame: obj.frame,
             threads: obj.threads.map(t => Thread.parse(t)),
         })
+    }
+
+    /**
+     * @param {{ baseSize: number[], scale: number, frame: EmbroiderFrame, colors: BlockColors }} options
+    */
+    static newBlank(options) {
+        let { baseSize, scale, frame, colors } = options || {};
+        
+        if(!baseSize) baseSize = [ 20, 20 ];
+        
+        if(!scale) scale = 1;
+
+        if(!frame) frame = [ 
+            [ 0.5, 0.5 ], [ 19.5, 0.5 ],
+            [ 19.5, 19.5 ], [ 0.5, 19.5 ]
+        ];
+
+        if(!colors) colors = {
+            fill: "#B8A976",
+            stroke: "#A39567"
+        };
+        
+
+        const size = [ baseSize[0]*scale, baseSize[1]*scale ];
+
+        function getBlockOrientation(col, row) {
+            const rowInitial = row % 2;
+            const orientation = (col + rowInitial) % 2;
+            return orientation === 0 ? "h" : "v";
+        }
+
+        const weavedBlocks = 
+            new Array(size[1]).fill(0).map((_, r) => 
+                new Array(size[0]).fill(0).map(
+                    (_, c) => new Weaved({
+                        orientation: getBlockOrientation(c, r),
+                        colors: colors,
+                        state: new WeavedState({})
+                    })
+                ));
+
+        return new EmbroiderMatrix({
+            baseSize, size, scale,
+            frame, threads: [], weaved: weavedBlocks
+        });
     }
 }
 

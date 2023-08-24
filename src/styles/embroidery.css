@@ -19,6 +19,12 @@ body {
     left: 0;
     height: 100%;
     width: 100%;
+    user-select: none;
+    z-index: 1;
+}
+
+.main-window.embroidery > .blocks {
+    overflow: hidden;
 }
 
 .main-window.embroidery > .actions,
@@ -70,8 +76,30 @@ body {
     float: right;
 }
 
+.main-window.embroidery .logs {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 13px;
+    color: #111;
+    font-family: sans-serif;
+    z-index: 1000;
+}
+
 .rendered-block {
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.rendered-block.thread {
+    z-index: -1;
+}
+
+.blocks.h {
+    background-color: gray;
+}
+
+.blocks.v {
+    background-color: blue;
 }

@@ -1,0 +1,37 @@
+<style>
+    .mask-parent {
+        position: relative;
+        width: 100px; /* Adjust as needed */
+        height: 100px; /* Adjust as needed */
+        background-color: #ccc;
+        -webkit-clip-path: url('#maskShape'); /* Webkit browsers */
+        clip-path: url('#maskShape'); /* Webkit browsers */
+        /* mask: url('#maskShape'); */
+    }
+
+    .content {
+        background-color: red;
+        height: 500px;
+        width: 500px;
+    }
+</style>
+
+
+<div class="mask-parent">
+    <div class="content">
+        Some freaking content!
+    </div>
+</div>
+
+<svg width="0" height="0">
+    <clipPath id="maskShape" height="10" width="10">
+        <rect width="50" height="50" fill="#ffffff" x="0" />
+        <rect width="50" height="50" fill="#ffffff" x="100" />
+        <!-- Define your mask shape using SVG elements -->
+        <!-- <circle cx="25" cy="25" r="25" fill="#000000" /> -->
+    </clipPath>
+</svg>
+
+<script>
+document.querySelector("clipPath").append(`<rect width="50" height="50" fill="#ffffff" x="200" />`)
+</script>
