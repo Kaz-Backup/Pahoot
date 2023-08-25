@@ -84,6 +84,26 @@ body {
     float: right;
 }
 
+.main-window.embroidery > .mouse[data-mode='embroider'] {
+    cursor: cell; 
+}
+
+.main-window.embroidery > .mouse[data-mode='embroider'][data-orientation='h']:active {
+    cursor: e-resize !important; 
+}
+
+.main-window.embroidery > .mouse[data-mode='embroider'][data-orientation='v']:active {
+    cursor: s-resize !important; 
+}
+
+.main-window.embroidery > .mouse[data-mode='move'] {
+    cursor: grab;
+}
+
+.main-window.embroidery > .mouse[data-mode='move']:active {
+    cursor: grabbing;
+}
+
 .main-window.embroidery .logs {
     position: fixed;
     bottom: 20px;
