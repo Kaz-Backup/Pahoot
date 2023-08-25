@@ -7,6 +7,7 @@ body {
     width: 100%;
     background-color: var(--color-weaved);
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .main-window.embroidery > .blocks,
@@ -25,6 +26,13 @@ body {
 
 .main-window.embroidery > .blocks {
     overflow: hidden;
+}
+
+
+.main-window.embroidery > .blocks canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .main-window.embroidery > .actions,

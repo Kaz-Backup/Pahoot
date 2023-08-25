@@ -1,11 +1,14 @@
 <style>
     .mask-parent {
-        position: relative;
+        position: absolute;
+        top: 100px;
+        left: 50px;
         width: 100px; /* Adjust as needed */
         height: 100px; /* Adjust as needed */
         background-color: #ccc;
         -webkit-clip-path: url('#maskShape'); /* Webkit browsers */
         clip-path: url('#maskShape'); /* Webkit browsers */
+        
         /* mask: url('#maskShape'); */
     }
 
@@ -33,5 +36,6 @@
 </svg>
 
 <script>
-document.querySelector("clipPath").append(`<rect width="50" height="50" fill="#ffffff" x="200" />`)
+document.querySelector("clipPath").innerHTML += `<rect width="50" height="50" fill="#ffffff" x="200" />`;
+document.querySelector(".").append(`<rect width="50" height="50" fill="#ffffff" x="200" />`)
 </script>

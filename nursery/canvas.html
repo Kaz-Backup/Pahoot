@@ -1,0 +1,24 @@
+<style>
+    canvas {
+        border: 1px solid red;
+    }
+</style>
+<canvas height="400" width="400"></canvas>
+
+<script>
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
+
+ctx.fillStyle = "blue";
+ctx.fillRect(0, 0, 300, 300);
+
+
+ctx.save();
+const clipRegion = new Path2D();
+clipRegion.rect(0, 0, 30, 30);
+clipRegion.rect(30, 30, 30, 30);
+ctx.clip(clipRegion, "evenodd");
+ctx.fillStyle = "orange";
+ctx.fillRect(0, 0, 100, 100);
+ctx.restore();
+</script>

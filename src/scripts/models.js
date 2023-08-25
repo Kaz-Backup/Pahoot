@@ -235,6 +235,15 @@ class Thread {
         }
     }
 
+    static idcounter = 1;
+    static new({ orientation, direction, colors, span }) {
+        return new Thread({
+            id: Thread.idcounter++,
+            orientation, direction, colors,
+            state: new ThreadState({ span: span || [ [0,0], [0,0] ] })
+        });
+    }
+
     static parse(obj) {
         return new Thread({
             id: obj.id,
@@ -275,6 +284,11 @@ class Weaved {
     }
 }
 
+function getBlockOrientation(col, row) {
+    const rowInitial = row % 2;
+    const orientation = (col + rowInitial) % 2;
+    return orientation === 0 ? "h" : "v";
+}
 
 class EmbroiderMatrix {
     /**
@@ -335,12 +349,6 @@ class EmbroiderMatrix {
 
         const size = [ baseSize[0]*scale, baseSize[1]*scale ];
 
-        function getBlockOrientation(col, row) {
-            const rowInitial = row % 2;
-            const orientation = (col + rowInitial) % 2;
-            return orientation === 0 ? "h" : "v";
-        }
-
         const weavedBlocks = 
             new Array(size[1]).fill(0).map((_, r) => 
                 new Array(size[0]).fill(0).map(
@@ -385,11 +393,13 @@ class DesignMatrix {
 class ChangeState {
     /**
      * @param {{ action: ChangeStateAction, type: ChangeStateType,
-     *  from: ThreadState | WeavedState,
+     *  subject: Thread | Weaved,
+     *  from: ThreadState | WeavedState, 
      *  to: ThreadState | WeavedState }} options 
      */
     constructor(options) {
         this.action = options.action;
+        this.subject = options.subject;
         this.type = options.type;
         this.from = options.from;
         this.to = options.to;
