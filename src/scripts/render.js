@@ -13,6 +13,7 @@ const BlockSprites = {
 };
 
 const BlockImages = {};
+const CachedImages = {};
 
 
 function getBlockSVG({ block, colors, blockSize }) {
@@ -34,21 +35,29 @@ function getBlockSVG({ block, colors, blockSize }) {
    return svgElement.cloneNode(true);
 }
 
-function getBlockImage({ block, colors }) {
-   return new Promise(resolve => {
-       const key = `${block}--${colors.fill}.${colors.stroke}`;
-       if(key in BlockImages) return resolve(BlockImages[key]);
+function getImageFromSVG(svgElement) {
+    return new Promise((resolve, reject) => {
+        const xml = new XMLSerializer().serializeToString(svgElement);
+        const image = new Image();
+        image.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(xml);
+        image.onload = function() {
+            resolve(image);
+        };
+        image.onerror = function(event) {
+            reject("Unable to parse image.");
+        }
+    });
+}
 
-       // Create SVG DOM
-       const svgElement = getBlockSVG({ block, colors });
-       const xml = new XMLSerializer().serializeToString(svgElement);
-       const blockImage = new Image();
-       blockImage.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(xml);
-       blockImage.onload = function() {
-           BlockImages[key] = blockImage;
-           resolve(blockImage);
-       };
-   });
+async function getBlockImage({ block, colors }) {
+    const key = `${block}--${colors.fill}.${colors.stroke}`;
+    if(key in BlockImages) return BlockImages[key];
+
+    // Create SVG DOM
+    const svgElement = getBlockSVG({ block, colors });
+    const blockImage = await getImageFromSVG(svgElement);
+    BlockImages[key] = blockImage;
+    return blockImage;
 }
 
 async function preloadBlockImages(blocks) {
@@ -139,4 +148,23 @@ async function renderGrooveBlock(options) {
     });
 
     ctx.drawImage(blockImage, position[0], position[1], size[0], size[1]);
+}
+
+
+async function getImageFromPath(path, style) {
+    const { fill, stroke, strokeWidth } = style || {};
+    const key = JSON.stringify([ path, fill, stroke, strokeWidth ]);
+    if(key in CachedImages) return CachedImages[key];
+
+
+    const tempParent = document.createElement("div");
+    tempParent.innerHTML = `
+    <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="${path}" fill="${fill || "none"}" stroke-width="${strokeWidth || 1}" stroke="${stroke || "none"}"/>
+    </svg>`;
+
+    const svgElement = tempParent.querySelector("svg");
+    const image = await getImageFromSVG(svgElement);
+    CachedImages[key] = image;
+    return image;
 }

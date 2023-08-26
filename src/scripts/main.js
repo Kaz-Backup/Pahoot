@@ -22,3 +22,34 @@ function createElement(tagName, { classList, id, listeners, innerHTML, children,
 
     return element;
 }
+
+function generateId() {
+    return `${Date.now()}-${Math.floor(Math.random()*89999 + 10000)}`;
+}
+
+const LocalDB = {
+    getSaveKey(key) {
+        return `pahoot-values-${key}`;
+    },
+
+    save(key, value) {
+        const saveKey = this.getSaveKey(key);
+        localStorage.setItem(saveKey, JSON.stringify(value));
+        this.addToKeys(saveKey);
+    },
+
+    get(key) {
+        const saveKey = this.getSaveKey(key);
+        return JSON.parse(localStorage.getItem(saveKey));
+    },
+
+    addToKeys(key) {
+        const collectionKey = "___keys";
+        let allKeys = this.get(collectionKey);
+        if(!allKeys) allKeys = [];
+
+        if(!allKeys.includes(key)) allKeys.push(key);
+        localStorage.setItem(this.getSaveKey(collectionKey),
+            JSON.stringify(allKeys));
+    }
+};

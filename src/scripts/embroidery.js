@@ -14,7 +14,8 @@ const EmbroideryManager = {
             embroider: $(".main-window.embroidery > .actions #action-embroider"),
             cut: $(".main-window.embroidery > .actions #action-cut"),
             move: $(".main-window.embroidery > .actions #action-move"),
-            design: $(".main-window.embroidery > .actions #action-design")
+            design: $(".main-window.embroidery > .actions #action-design"),
+            erase: $(".main-window.embroidery > .actions #action-erase"),
         },
         colorOptions: [ ...document.querySelectorAll(".main-window.embroidery > .actions .color-item") ],
         buttons: {
@@ -24,6 +25,7 @@ const EmbroideryManager = {
             redo: $(".main-window.embroidery > .actions #redo-btn"),
             colors: $(".main-window.embroidery > .actions #colors-btn"),
         },
+        threadHover: $(".main-window.embroidery > .mouse .thread-hover")
     },
 
     view: {
@@ -35,6 +37,10 @@ const EmbroideryManager = {
         minZoom: 0.5,
         get apparentBlockSize() {
             return this.blockSize * this.zoom;
+        },
+        get matrixTotalApparentSize() {
+            return scaleVector(EmbroideryManager.matrices.embroider.size, 
+                EmbroideryManager.view.apparentBlockSize)
         }
     },
 
@@ -78,7 +84,9 @@ const EmbroideryManager = {
         
         get canRedo() {
             return this.changeStatePointer + 1 < this.changeStates.length;
-        }
+        },
+
+        hoveredThread: null
     },
 
     renderStates: {
@@ -119,6 +127,7 @@ const EmbroideryManager = {
         actionBtns.embroider.onclick = () => this.setMode("embroider");
         actionBtns.cut.onclick = () => this.setMode("cut");
         actionBtns.move.onclick = () => this.setMode("move");
+        actionBtns.erase.onclick = () => this.setMode("erase");
         actionBtns.design.onclick = () => this.toggleDesignView();
 
         this.components.colorOptions.forEach((btn, i) => 
@@ -131,6 +140,16 @@ const EmbroideryManager = {
         buttons.zoomIn.onclick = () => this.zoomIn();
         buttons.undo.onclick = () => this.undo();
         buttons.redo.onclick = () => this.redo();
+
+        this.components.threadHover.onclick = () => {
+            const thread = this.states.hoveredThread;
+            if(thread) {
+                // Remove thread
+                this.matrices.embroider.removeThread(thread);
+                this.forward("remove", thread);
+                this.renderAll();
+            }
+        };
 
         this.refreshStatesView();
 
@@ -152,29 +171,29 @@ const EmbroideryManager = {
 
         // Initialize mouse controller
         this.mouseCtrl = new MouseController(layers.mouse);
-        this.mouseCtrl.setListener("hover", ({ position }) => 
-            this.log(`(${position.join(",")}) | (${
-                this.getRelativePosition(position).map(n => Math.floor(n)).join(",")
-            })`));
+        this.mouseCtrl.setListener("hover", event => this.hover(event));
         
-        this.mouseCtrl.setListener("scroll", ({ direction, position }) =>
-            this.zoom(1.1, direction === 1 ? "in" : "out", position ));
+        this.mouseCtrl.setListener("scroll", ({ direction, position }) => {
+            this.zoom(1.1, direction === 1 ? "in" : "out", position );
+            this.hover({ position });
+        });
         
         this.mouseCtrl.setListener("span", event => this.span(event));
         this.mouseCtrl.setListener("spanRelease", () => {
+            this.save();
             this.components.layers.mouse.setAttribute("data-orientation", "");
         });
 
 
         // Banig at center
-        const totalSize = scaleVector(this.matrices.embroider.size, this.view.apparentBlockSize);
+        const totalSize = this.view.matrixTotalApparentSize; 
         this.view.offset = scaleVector(subtractVectors(
             [this.size.width,this.size.height], totalSize), -1/2).map(d => Math.floor(d));
         this.view.offset[1] -= 20;
 
 
         // Preload blocks
-        const weavedColors = this.matrices.embroider.weaved[0][0].colors;
+        const weavedColors = this.matrices.embroider.weavedColors;
         await preloadBlockImages([
             { block: `weaved-h`, colors: weavedColors },
             { block: `weaved-v`, colors: weavedColors },
@@ -203,7 +222,7 @@ const EmbroideryManager = {
         this.components.layers.mouse.setAttribute("data-mode", mode);
         
         // mode buttons
-        [   actionBtns.embroider, actionBtns.cut, actionBtns.move ]
+        [   actionBtns.embroider, actionBtns.cut, actionBtns.move, actionBtns.erase ]
             .forEach(b => {
                 if(b.id === `action-${mode}`)
                     b.classList.add("active");
@@ -322,6 +341,48 @@ const EmbroideryManager = {
         }
     },
 
+    findThreadAt(position) {
+        const [ x, y ] = position;
+        const threads = this.matrices.embroider.threads;
+        for(let i = threads.length-1; i >= 0; i--) {
+            const thread = threads[i];
+            const range = thread.state.span.map(p => this.getApparentPosition(p));
+            if(x >= range[0][0] && x <= range[1][0] &&
+                y >= range[0][1] && y <= range[1][1]) {
+                    return { thread, range };
+                }
+        }
+
+        return null;
+    },
+
+    hover({ position }) {
+        this.log(`(${position.join(",")}) | (${
+            this.getRelativePosition(position).map(n => Math.floor(n)).join(",")
+        })`);
+
+        this.log("Hovered at " + Date.now(), 2);
+
+        this.states.hoveredThread = null;
+
+        if(this.states.mode === "erase") {
+            const hoveredThread = this.findThreadAt(position);
+            if(hoveredThread) {
+                const { thread, range } = hoveredThread;
+                const size = subtractVectors(range[1], range[0]);
+
+                this.states.hoveredThread = thread;
+                this.components.threadHover.style.left = range[0][0];
+                this.components.threadHover.style.top = range[0][1];
+                this.components.threadHover.style.width = size[0];
+                this.components.threadHover.style.height = size[1];
+            }
+        }
+
+        // Update thread hover state
+        this.components.layers.mouse.classList[this.states.hoveredThread ? "add" : "remove"]("hovering");        
+    },
+
     getRelativePosition(position) {
         const offsetPosition = addVectors(position, this.view.offset); 
         const apparentBlockSize = this.view.apparentBlockSize;
@@ -345,7 +406,6 @@ const EmbroideryManager = {
 
         this.renderStates.cooldown = true;
         const embroiderMatrix = this.matrices.embroider;
-        const weaved = embroiderMatrix.weaved;
         const threads = embroiderMatrix.threads;
 
         const { zoom, blockSize, offset, apparentBlockSize } = this.view;
@@ -361,13 +421,11 @@ const EmbroideryManager = {
         // Render weaved blocks
         for(let wr = 0; wr < rows; wr++) {
             for(let wc = 0; wc < cols; wc++) {
-                const weavedCell = weaved[wr][wc];
                 const apparentPos = this.getApparentPosition([wc, wr]);
-
                 await renderWeavedBlock({
                     id: `weaved-${wc}-${wr}`,
-                    colors: weavedCell.colors,
-                    orientation: weavedCell.orientation,
+                    colors: embroiderMatrix.weavedColors,
+                    orientation: getBlockOrientation(wc, wr),
                     position: apparentPos,
                     size: [ apparentBlockSize, apparentBlockSize ],
                     parent: canvas
@@ -411,17 +469,28 @@ const EmbroideryManager = {
         // Render grooves
         for(let r = 0; r < rows; r++) {
             for(let c = 0; c < cols; c++) {
-                const weavedCell = weaved[r][c];
                 const apparentPos = this.getApparentPosition([c, r]);
 
                 await renderGrooveBlock({
-                    orientation: weavedCell.orientation,
+                    orientation: getBlockOrientation(c, r),
                     position: apparentPos,
                     size: [ apparentBlockSize, apparentBlockSize ],
                     parent: canvas
                 });
             }
         }
+
+        this.log("RENDERING...");
+
+        // Render frame
+        const totalSize = this.view.matrixTotalApparentSize;
+        const frameScale = this.matrices.embroider.size[0] * this.view.blockSize / 100;
+        const frameImg = await getImageFromPath(embroiderMatrix.frame,
+            { stroke: "#857A55", strokeWidth: 5 / frameScale });
+        const framePos = this.getApparentPosition([0,0]).map(n => Math.floor(n));
+        ctx.drawImage(frameImg, ...framePos, ...totalSize);
+
+        this.log("DONE RENDERING");
 
         await new Promise(resolve => setTimeout(resolve, this.renderStates.cooldownTime));
         this.renderStates.cooldown = false;
@@ -489,6 +558,12 @@ const EmbroideryManager = {
                 type: "thread",
                 subject: args
             });
+        } else if(action === "remove") {
+            changeState = new ChangeState({
+                action,
+                type: "thread",
+                subject: args
+            });
         }
 
         const pointer = ++this.states.changeStatePointer;
@@ -498,6 +573,7 @@ const EmbroideryManager = {
         this.states.changeStates = 
             this.states.changeStates.slice(0, pointer+1);
 
+        this.save();
         this.refreshStats();
         this.refreshStatesView();
     },
@@ -510,14 +586,16 @@ const EmbroideryManager = {
         if(!changeState) return;
 
         if(changeState.action === "add" && changeState.type === "thread") {
-            const threads = this.matrices.embroider.threads;
-            
             // Remove thread
-            this.matrices.embroider.threads = threads.filter(
-                t => t.id !== changeState.subject.id);
+            this.matrices.embroider.removeThread(changeState.subject);
+        } else if(changeState.action === "remove" && changeState.type === "thread") {
+            // Add thread
+            this.matrices.embroider.addBackThread(changeState.subject);
         }
 
         this.states.changeStatePointer--;
+
+        this.save();
         this.renderAll();
         this.refreshStats();
         this.refreshStatesView();
@@ -532,13 +610,22 @@ const EmbroideryManager = {
 
         if(changeState.action === "add" && changeState.type === "thread") {
             // Add thread
-            this.matrices.embroider.threads.push(changeState.subject);
+            this.matrices.embroider.addBackThread(changeState.subject);
+        } else if(changeState.action === "remove" && changeState.type === "thread") {
+            // Remove thread
+            this.matrices.embroider.removeThread(changeState.subject);
         }
 
         this.states.changeStatePointer++;
+
+        this.save();
         this.renderAll();
         this.refreshStats();
         this.refreshStatesView();
+    },
+
+    save() {
+        this.matrices.embroider.save();
     }
     
 };
@@ -560,10 +647,22 @@ async function test() {
     //     parent: blocksLayer
     // });
 
-    const embroiderMatrix = EmbroiderMatrix.newBlank();
+ 
+    // const embroiderMatrix = EmbroiderMatrix.newBlank({
+    //     frame: "M2 25H97L85.5636 78.9323L83.6004 81H15.7432L13.4364 78.9323L2 25Z"
+    // });
+    // const json = LocalDB.get(`embmatrix-1693030932107-21707`);
+    const embroiderMatrix = EmbroiderMatrix.load("1693030932107-21707");
+    
+    // EmbroideryManager.log(embroiderMatrix, 2);
+    // embroiderMatrix.threads = [];
+    // embroiderMatrix.save()
+    EmbroideryManager.log(embroiderMatrix.id, 1);
     await EmbroideryManager.initialize({
         embroiderMatrix
     });
+
+    // embroiderMatrix.save()
     // renderThread({
     //     id: `sample-thread`,
     //     orientation: "h",

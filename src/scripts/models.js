@@ -149,7 +149,7 @@ class MouseController {
 }
 
 /**
- * @typedef {number[][]} EmbroiderFrame 
+ * @typedef {string} EmbroiderFrame 
  * @typedef {"h" | "v"} BlockOrientation
  * @typedef {1 | -1} BlockDirection
  * @typedef {{ fill: string, stroke: string }} BlockColors
@@ -235,10 +235,9 @@ class Thread {
         }
     }
 
-    static idcounter = 1;
     static new({ orientation, direction, colors, span }) {
         return new Thread({
-            id: Thread.idcounter++,
+            id: generateId(),
             orientation, direction, colors,
             state: new ThreadState({ span: span || [ [0,0], [0,0] ] })
         });
@@ -250,7 +249,7 @@ class Thread {
             orientation: obj.orientation,
             direction: obj.direction,
             state: ThreadState.parse(obj.state),
-            colors: obj.color,
+            colors: obj.colors,
         });
     }
 }
@@ -292,37 +291,66 @@ function getBlockOrientation(col, row) {
 
 class EmbroiderMatrix {
     /**
-     * @param {{ baseSize: number[], size: number[], scale: number,
-     *  frame: EmbroiderFrame, threads: Thread[], weaved: Weaved[][] }} options
+     * @param {{ id: string, baseSize: number[], size: number[], scale: number,
+     *  frame: EmbroiderFrame, threads: Thread[], weavedColors: BlockColors }} options
      */
     constructor(options) {
+        this.id = options.id;
         this.baseSize = options.baseSize;
         this.size = options.size;
         this.scale = options.scale;
         this.frame = options.frame;
         this.threads = options.threads;
-        this.weaved = options.weaved;
+        this.weavedColors = options.weavedColors;
+        // this.weaved = options.weaved;
     }
 
     serialize() {
         return {
+            id: this.id,
             baseSize: this.baseSize,
             size: this.size,
             scale: this.scale,
             frame: this.frame,
             threads: this.threads.map(t => t.serialize()),
-            weaved: this.weaved.map(r => 
-                r.map(w => w.serialize())),
+            weavedColors: this.weavedColors
+            // weaved: this.weaved.map(r => 
+            //     r.map(w => w.serialize())),
         };
+    }
+
+    get totalSize() {
+        return this.size[0] * this.size[1];
+    }
+
+    removeThread(thread) {
+        this.threads = this.threads.filter(t => t.id !== thread.id);
+    }
+
+    addBackThread(thread) {
+        this.threads = [ ...this.threads, thread ].sort(
+            (a, b) => (a.id <= b.id) ? -1 : 1);
+    }
+
+    save() {
+        LocalDB.save(`embmatrix-${this.id}`, this.serialize());
+    }
+
+    static load(id) {
+        const obj = LocalDB.get(`embmatrix-${id}`);
+        if(!obj) return null;
+        return EmbroiderMatrix.parse(obj);
     }
 
     static parse(obj) {
         return new EmbroiderMatrix({
+            id: obj.id,
             baseSize: obj.baseSize,
             size: obj.size,
             scale: obj.scale,
             frame: obj.frame,
             threads: obj.threads.map(t => Thread.parse(t)),
+            weavedColors: obj.weavedColors
         })
     }
 
@@ -336,32 +364,19 @@ class EmbroiderMatrix {
         
         if(!scale) scale = 1;
 
-        if(!frame) frame = [ 
-            [ 0.5, 0.5 ], [ 19.5, 0.5 ],
-            [ 19.5, 19.5 ], [ 0.5, 19.5 ]
-        ];
+        if(!frame) frame = "M5 5H95V95H5V5Z";
 
         if(!colors) colors = {
             fill: "#B8A976",
             stroke: "#A39567"
         };
         
-
         const size = [ baseSize[0]*scale, baseSize[1]*scale ];
 
-        const weavedBlocks = 
-            new Array(size[1]).fill(0).map((_, r) => 
-                new Array(size[0]).fill(0).map(
-                    (_, c) => new Weaved({
-                        orientation: getBlockOrientation(c, r),
-                        colors: colors,
-                        state: new WeavedState({})
-                    })
-                ));
-
+        const id = generateId();
         return new EmbroiderMatrix({
-            baseSize, size, scale,
-            frame, threads: [], weaved: weavedBlocks
+            id, baseSize, size, scale,
+            frame, threads: [], weavedColors: colors
         });
     }
 }
