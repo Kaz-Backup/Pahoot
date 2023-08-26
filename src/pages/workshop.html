@@ -1,0 +1,46 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="../../ext/fontawesome/css/all.css">
+    <!-- <link rel="stylesheet" href="../../ext/fontawesome/css/solid.css"> -->
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/workshop.css">
+</head>
+<body>
+    <main class="main-window workshop">
+        <header>
+            <div class="left"><h2>My Workshop</h2></div>
+            <div class="right">
+                <button class="medium secondary"><i class="fa-solid fa-pen"></i> Rename</button>
+            </div>
+        </header>
+        <main>
+            <div class="preview">
+                <canvas height="500" width="500"></canvas>
+                <div class="name">Bag #1</div>
+            </div>
+            <div class="controls parts">
+                <div class="part template">
+                    <header>
+                        <div class="left"><label class="part-label">Bag Handle</label></div>
+                        <div class="right">
+                            <button class="icon large design-btn"><i class="fa-solid fa-palette"></i></button>
+                            <button class="large embroider-btn">EMBROIDER</button>
+                        </div>
+                    </header>
+                    <table class="layers">
+                        <tr class="layer template">
+                            <td><label class="layer-label">Inside</label></td>
+                            <td width="100%"><div class="color-bar"></div></td>
+                            <td><button class="small secondary">Change Color</button></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </main>
+    <script src="../scripts/main.js"></script>
+    <script src="../scripts/models.js"></script>
+    <script src="../scripts/render.js"></script>
+    <script src="../scripts/workshop.js"></script>
+</body>

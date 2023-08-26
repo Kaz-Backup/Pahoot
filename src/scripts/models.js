@@ -380,7 +380,9 @@ class EmbroiderMatrix {
             stroke: "#A39567"
         };
         
-        const size = [ baseSize[0]*scale, baseSize[1]*scale ];
+        const size = [ 
+            Math.floor(baseSize[0]*scale), 
+            Math.floor(baseSize[1]*scale) ];
 
         const id = generateId();
         return new EmbroiderMatrix({
@@ -466,35 +468,18 @@ class Product {
     }
 
     static Bag(options) {
-        const { designMatrices } = options || {};
+        let { designMatrices, embroiderScale } = options || {};
         
+
         const frame = { baseSize: [ 400, 400 ], path: "M3 92.8311H397.286L350.143 315.688L341.571 324.26H60.0395L50.1484 315.715L3 92.8311Z" };
         const designMatrix = designMatrices?.[0] || DesignMatrix.newBlank({ frame });
-        const embroiderMatrix = EmbroiderMatrix.newBlank({ frame });
+        if(!embroiderScale) embroiderScale = 1;
+        const embroiderMatrix = EmbroiderMatrix.newBlank({ frame, scale: embroiderScale });
         
         return new Product({
             id: generateId(),
             type: "bag",
             parts: [
-                { label: "Inner", colors: [ "#B8AD8A" ], layers: [
-                    // Shadow
-                    { z: 1, type: "fixed", path: "M464 413.316L405.451 467H109.848L98.4242 455.667L87 399H454.004L464 413.316Z", color: "#222222", opacity: 0.25 },
-
-                    // Inner
-                    { z: 3, type: "shape", colorIndex: 0, path: "M66.422 194L50 223H444L429.725 194.208L66.422 194Z" },
-                ]},
-                { label: "Edges", colors: [ "#9B8C58", "#898166" ], layers: [
-                    // Inner edge
-                    { z: 4, label: "Inside", type: "shape", colorIndex: 0, path: "M68.5917 211.043L54.2826 243L50 222.824L66.4465 194H429.699L444 222.824L439.717 243L426.123 211.043H68.5917Z" },
-                    
-                    // Inner edge shadows / highlight
-                    { z: 4, type: "fixed", path: "M70 223L66.4296 194L50 222.497L70 223Z", color: "#282828", opacity: 0.15 },
-                    { z: 4, type: "fixed", path: "M424 223L429.714 194L444 223H424Z", color: "#EAEAEA", opacity: 0.3 },
-                    { z: 4, type: "fixed", path: "M67.1948 203L50 223H398.195L67.1948 203Z", color: "#282828", opacity: 0.15 },
-                
-                    // Outer edge
-                    { z: 11, label: "Outside", type: "shape", colorIndex: 0, path: "M444 222.5H50L54.2826 243H439.717L444 223Z" },
-                ]},
                 { label: "Bag Handle", colors: [ "#A18738" ], layers: [
                     // Back handle: base
                     { z: 2, type: "shape", colorIndex: 0, path: "M196.623 112.278C186.738 152.014 187.395 199.059 187.395 227H166C166 186.996 166.152 146.141 175.861 107.112C181.171 85.7644 189.377 65.1067 202.402 49.6111C215.752 33.7292 233.304 23 257.287 23C281.16 23 300.138 33.3949 313.534 48.9844C326.601 64.1909 334.824 84.5158 340.143 105.648C350.078 145.122 350 186.529 350 227H330.031C330.031 197.117 329.269 150.105 319.395 110.872C314.462 91.2709 307.307 74.569 297.308 62.9319C287.637 51.678 274.422 44.3986 257.287 44.3986C240.262 44.3986 228.495 51.822 218.779 63.3814C208.737 75.3271 201.565 92.4137 196.623 112.278Z", opacity: 0.8 },
@@ -509,6 +494,25 @@ class Product {
                     // Front handle: shadows
                     { z: 9, type: "fixed", path: "M172.475 233.998C172.475 206.063 171.815 159.03 181.755 119.303C186.725 99.4431 193.938 82.3602 204.036 70.4171C213.808 58.8602 225.642 51.4364 242.762 51.4364C259.994 51.4364 273.284 58.7163 283.01 69.9678C293.066 81.6022 300.261 98.3006 305.222 117.897C307.378 126.415 308.855 135.163 310.18 144.143C308.528 132.232 306.542 120.465 303.621 109.18C298.561 89.6389 293.795 79.2103 282.932 66.9212C272.222 54.8057 256.828 43.3879 237.747 43.3879C218.717 43.3879 206.163 51.6593 195.432 64.0687C184.549 76.654 177.068 94.2635 172.004 114.05C162.025 153.046 161 193.951 161 233.998H172.475Z", color: "#1F1F1F", opacity: 0.14 },
                     { z: 9, type: "fixed", path: "M241.328 30.0427C262.114 30.8857 276.696 41.9669 288.67 55.5111C301.003 69.4632 309.529 86.4128 314.779 106.691C325.333 147.454 326.676 192.636 325.959 234H336C336 193.905 335.981 151.755 326.087 112.675C320.739 91.5469 312.469 71.2264 299.328 56.0233C285.138 39.6073 263.26 29.2477 241.328 30.0427Z", color: "#1F1F1F", opacity: 0.14 }
+                ]},
+                { label: "Edges", colors: [ "#9B8C58", "#898166" ], layers: [
+                    // Inner edge
+                    { z: 4, label: "Inside", type: "shape", colorIndex: 0, path: "M68.5917 211.043L54.2826 243L50 222.824L66.4465 194H429.699L444 222.824L439.717 243L426.123 211.043H68.5917Z" },
+                    
+                    // Inner edge shadows / highlight
+                    { z: 4, type: "fixed", path: "M70 223L66.4296 194L50 222.497L70 223Z", color: "#282828", opacity: 0.15 },
+                    { z: 4, type: "fixed", path: "M424 223L429.714 194L444 223H424Z", color: "#EAEAEA", opacity: 0.3 },
+                    { z: 4, type: "fixed", path: "M67.1948 203L50 223H398.195L67.1948 203Z", color: "#282828", opacity: 0.15 },
+                
+                    // Outer edge
+                    { z: 11, label: "Outside", type: "shape", colorIndex: 1, path: "M444 222.5H50L54.2826 243H439.717L444 223Z" },
+                ]},
+                { label: "Inner", colors: [ "#B8AD8A" ], layers: [
+                    // Shadow
+                    { z: 1, type: "fixed", path: "M464 413.316L405.451 467H109.848L98.4242 455.667L87 399H454.004L464 413.316Z", color: "#222222", opacity: 0.25 },
+
+                    // Inner
+                    { z: 3, type: "shape", colorIndex: 0, path: "M66.422 194L50 223H444L429.725 194.208L66.422 194Z" },
                 ]},
                 { label: "Front", layers: [
                     // Front embroidered

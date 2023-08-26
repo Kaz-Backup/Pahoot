@@ -181,7 +181,7 @@ async function renderEmbroiderMatrix(canvas, embroiderMatrix, viewSettings) {
         return scaleVector(size, apparentBlockSize);
     }
 
-    const [ cols, rows ] = embroiderMatrix.baseSize;
+    const [ cols, rows ] = embroiderMatrix.size;
     const ctx = canvas.getContext("2d");
     const threads = embroiderMatrix.threads;
 

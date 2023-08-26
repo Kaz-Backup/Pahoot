@@ -1,0 +1,100 @@
+.main-window.workshop {
+    min-height: 100%;
+    width: 100%;
+    background-color: var(--color-primary);
+    background-image: url(../../assets/images/background.png);
+    background-size: cover;
+    box-sizing: border-box;
+    padding: 50px 100px;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.main-window.workshop > header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-basis: content;
+}
+
+.main-window.workshop > main {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 100px;
+}
+
+.main-window.workshop > main > .preview .name {
+    font-size: 50px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.main-window.workshop > main > .preview canvas {
+    /* outline: 1px solid red; */
+    width: 500px;
+    height: 500px;
+}
+
+.main-window.workshop > main > .controls {
+    width: 600px;
+}
+
+.main-window.workshop > main > .controls .part {
+    margin-bottom: 40px;
+}
+
+
+.main-window.workshop > main > .controls .part:last-child {
+    margin-bottom: 0;
+}
+
+.main-window.workshop > main > .controls .part:not(.embroidery) > header .right {
+    display: none;
+}
+
+.main-window.workshop > main > .controls .part > header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-bottom: 15px;
+}
+
+.main-window.workshop > main > .controls .part > header label {
+    font-size: 50px;
+}
+
+
+.main-window.workshop > main > .controls .part > table {
+    width: 100%;
+}
+
+.main-window.workshop > main > .controls .part > table td {
+    padding-bottom: 10px;
+}
+
+.main-window.workshop > main > .controls .layer label {
+    font-size: 30px;
+}
+
+
+.main-window.workshop > main > .controls .layer button {
+    width: 130px;
+}
+
+
+.main-window.workshop > main > .controls .layer .color-bar {
+    /* width: 150px; */
+    height: 27px;
+    background-color: #ffffff;
+    margin-left: 20px;
+    margin-right: 20px;
+    border-radius: 3px;
+}
+
+.main-window.workshop > main > .controls .layer.no-label .color-bar {
+    margin-left: 0;
+}
+
+

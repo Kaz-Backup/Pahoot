@@ -8,6 +8,7 @@ button {
     box-sizing: border-box;
     vertical-align: middle;
     position: relative;
+    user-select: none;
 }
 
 
@@ -58,7 +59,7 @@ button.huge {
 
 button.large {
     font-size: 40px;
-    padding: 3px 20px;
+    padding: 5px 20px;
     min-width: 180px;
 }
 
@@ -70,7 +71,14 @@ button.medium {
 
 button.small {
     font-size: 20px;
-    padding: 1px 20px;
+    padding: 4px 15px;
+}
+
+button.medium i {
+    font-size: 17px;
+    vertical-align: middle;
+    transform: translateY(-2px);
+    margin-left: -2px;
 }
 
 
@@ -142,4 +150,11 @@ button.icon.disabled {
     color: rgba(0, 0, 0, 0.3);
     cursor: default;
     position: none;
+}
+
+h2 {
+    font-size: 65px;
+    margin: 0;
+    font-weight: normal;
+
 }

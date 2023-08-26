@@ -1,3 +1,7 @@
+body {
+    margin: 0;
+}
+
 :root {
     --main-width: 700px;
     --main-ratio: calc(4/3);
@@ -24,5 +28,9 @@
 }
 
 *.hidden {
+    display: none;
+}
+
+.template {
     display: none;
 }
