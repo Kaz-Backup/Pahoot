@@ -406,10 +406,6 @@ const EmbroideryManager = {
 
         this.renderStates.cooldown = true;
         const embroiderMatrix = this.matrices.embroider;
-        const threads = embroiderMatrix.threads;
-
-        const { zoom, blockSize, offset, apparentBlockSize } = this.view;
-        const [ cols, rows ] = embroiderMatrix.baseSize;
         
         const canvas = this.components.layers.canvas;
         /** @type {CanvasRenderingContext2D} */
@@ -418,74 +414,13 @@ const EmbroideryManager = {
         // Clear canvas
         ctx.clearRect(0, 0, this.size.width, this.size.height);
 
-        // Render weaved blocks
-        for(let wr = 0; wr < rows; wr++) {
-            for(let wc = 0; wc < cols; wc++) {
-                const apparentPos = this.getApparentPosition([wc, wr]);
-                await renderWeavedBlock({
-                    id: `weaved-${wc}-${wr}`,
-                    colors: embroiderMatrix.weavedColors,
-                    orientation: getBlockOrientation(wc, wr),
-                    position: apparentPos,
-                    size: [ apparentBlockSize, apparentBlockSize ],
-                    parent: canvas
-                });
-            }
-        }
-
-        async function renderThreads(orientation) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.clip(getClipPath({
-                orientation,
-                size: embroiderMatrix.size,
-                blockSize: apparentBlockSize,
-                offset
-            }));
-            for(const thread of threads) {
-                if(thread.orientation !== orientation) continue;
-    
-                const span = thread.state.span;
-                const relativeSize = subtractVectors(span[1], span[0]);
-                const apparentPos = EmbroideryManager.getApparentPosition(span[0]);
-                const apparentSize = EmbroideryManager.getApparentSize(relativeSize);
-    
-                await renderThread({
-                    colors: thread.colors,
-                    orientation: thread.orientation,
-                    position: apparentPos,
-                    size: apparentSize,
-                    parent: canvas,
-                    blockSize: apparentBlockSize
-                });
-            }
-            ctx.restore();
-        }
-        
-        await renderThreads("h");
-        await renderThreads("v");
-        
-
-        // Render grooves
-        for(let r = 0; r < rows; r++) {
-            for(let c = 0; c < cols; c++) {
-                const apparentPos = this.getApparentPosition([c, r]);
-
-                await renderGrooveBlock({
-                    orientation: getBlockOrientation(c, r),
-                    position: apparentPos,
-                    size: [ apparentBlockSize, apparentBlockSize ],
-                    parent: canvas
-                });
-            }
-        }
-
-        this.log("RENDERING...");
+        await renderEmbroiderMatrix(canvas, embroiderMatrix, this.view);
 
         // Render frame
+        const frame = embroiderMatrix.frame;
         const totalSize = this.view.matrixTotalApparentSize;
-        const frameScale = this.matrices.embroider.size[0] * this.view.blockSize / 100;
-        const frameImg = await getImageFromPath(embroiderMatrix.frame,
+        const frameScale = embroiderMatrix.size[0] * this.view.blockSize / frame.baseSize[0];
+        const frameImg = await getImageFromPath(frame.path, frame.baseSize,
             { stroke: "#857A55", strokeWidth: 5 / frameScale });
         const framePos = this.getApparentPosition([0,0]).map(n => Math.floor(n));
         ctx.drawImage(frameImg, ...framePos, ...totalSize);
@@ -653,8 +588,11 @@ async function test() {
     // });
     // const json = LocalDB.get(`embmatrix-1693030932107-21707`);
     const embroiderMatrix = EmbroiderMatrix.load("1693030932107-21707");
-    
-    // EmbroideryManager.log(embroiderMatrix, 2);
+    embroiderMatrix.frame = {
+        baseSize: [ 400, 400 ],
+        path: "M3 92.8311H397.286L350.143 315.688L341.571 324.26H60.0395L50.1484 315.715L3 92.8311Z"
+    };
+        // EmbroideryManager.log(embroiderMatrix, 2);
     // embroiderMatrix.threads = [];
     // embroiderMatrix.save()
     EmbroideryManager.log(embroiderMatrix.id, 1);

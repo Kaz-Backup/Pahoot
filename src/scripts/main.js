@@ -23,6 +23,13 @@ function createElement(tagName, { classList, id, listeners, innerHTML, children,
     return element;
 }
 
+function hexToRGBA(hex, opacity) {
+    var r = parseInt(hex.slice(1, 3), 16);
+    var g = parseInt(hex.slice(3, 5), 16);
+    var b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}
+
 function generateId() {
     return `${Date.now()}-${Math.floor(Math.random()*89999 + 10000)}`;
 }

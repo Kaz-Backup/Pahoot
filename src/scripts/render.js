@@ -151,7 +151,7 @@ async function renderGrooveBlock(options) {
 }
 
 
-async function getImageFromPath(path, style) {
+async function getImageFromPath(path, baseSize, style) {
     const { fill, stroke, strokeWidth } = style || {};
     const key = JSON.stringify([ path, fill, stroke, strokeWidth ]);
     if(key in CachedImages) return CachedImages[key];
@@ -159,7 +159,7 @@ async function getImageFromPath(path, style) {
 
     const tempParent = document.createElement("div");
     tempParent.innerHTML = `
-    <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="100" height="100" viewBox="0 0 ${baseSize.join(" ")}" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="${path}" fill="${fill || "none"}" stroke-width="${strokeWidth || 1}" stroke="${stroke || "none"}"/>
     </svg>`;
 
@@ -167,4 +167,157 @@ async function getImageFromPath(path, style) {
     const image = await getImageFromSVG(svgElement);
     CachedImages[key] = image;
     return image;
+}
+
+
+async function renderEmbroiderMatrix(canvas, embroiderMatrix, viewSettings) {
+    const { offset, apparentBlockSize, clipPath, clipOffset } = viewSettings;
+
+    function getApparentPosition(position) {
+        return subtractVectors(scaleVector(position, apparentBlockSize), offset);
+    }
+
+    function getApparentSize(size) {
+        return scaleVector(size, apparentBlockSize);
+    }
+
+    const [ cols, rows ] = embroiderMatrix.baseSize;
+    const ctx = canvas.getContext("2d");
+    const threads = embroiderMatrix.threads;
+
+    function clipFrame() {
+        ctx.translate(...clipOffset);
+        ctx.clip(clipPath);
+    }
+
+    if(clipPath) {
+        ctx.save();
+        clipFrame();
+    }
+    
+    // Render weaved blocks
+    for(let wr = 0; wr < rows; wr++) {
+        for(let wc = 0; wc < cols; wc++) {
+            const apparentPos = getApparentPosition([wc, wr]);
+            await renderWeavedBlock({
+                id: `weaved-${wc}-${wr}`,
+                colors: embroiderMatrix.weavedColors,
+                orientation: getBlockOrientation(wc, wr),
+                position: apparentPos,
+                size: [ apparentBlockSize, apparentBlockSize ],
+                parent: canvas
+            });
+        }
+    }
+
+    if(clipPath) ctx.restore();
+
+    async function renderThreads(orientation) {
+        ctx.save();
+        ctx.beginPath();
+        if(clipPath) clipFrame();
+        ctx.clip(getClipPath({
+            orientation,
+            size: embroiderMatrix.size,
+            blockSize: apparentBlockSize,
+            offset
+        }));
+
+        for(const thread of threads) {
+            if(thread.orientation !== orientation) continue;
+
+            const span = thread.state.span;
+            const relativeSize = subtractVectors(span[1], span[0]);
+            const apparentPos = getApparentPosition(span[0]);
+            const apparentSize = getApparentSize(relativeSize);
+
+            await renderThread({
+                colors: thread.colors,
+                orientation: thread.orientation,
+                position: apparentPos,
+                size: apparentSize,
+                parent: canvas,
+                blockSize: apparentBlockSize
+            });
+        }
+        ctx.restore();
+    }
+    
+    await renderThreads("h");
+    await renderThreads("v");
+    
+
+    if(clipPath) {
+        ctx.save();
+        clipFrame();
+    }
+
+    // Render grooves
+    for(let r = 0; r < rows; r++) {
+        for(let c = 0; c < cols; c++) {
+            const apparentPos = getApparentPosition([c, r]);
+
+            await renderGrooveBlock({
+                orientation: getBlockOrientation(c, r),
+                position: apparentPos,
+                size: [ apparentBlockSize, apparentBlockSize ],
+                parent: canvas
+            });
+        }
+    }
+
+    if(clipPath) ctx.restore();
+}
+
+async function renderProduct(canvas, product, options) {
+    let { qualityScale } = options || {};
+
+    if(!qualityScale) qualityScale = 3;
+
+    canvas.height *= qualityScale;
+    canvas.width *= qualityScale;
+
+    const ctx = canvas.getContext("2d");
+    const renderActions = [];
+
+    for(const part of product.parts) {
+        const { colors, layers } = part;
+
+        for(const layer of layers) {
+            const path = new Path2D(layer.path);
+            if(layer.type === "shape") {
+                renderActions.push([ layer.z, () => {
+                    ctx.save();
+                    ctx.scale(qualityScale, qualityScale);
+                    ctx.fillStyle = hexToRGBA(colors[layer.colorIndex], layer.opacity || 1);
+                    ctx.fill(path);
+                    ctx.restore();
+                }]);
+            } else if(layer.type === "fixed") {
+                renderActions.push([ layer.z, () => {
+                    ctx.save();
+                    ctx.scale(qualityScale, qualityScale);
+                    ctx.fillStyle = hexToRGBA(layer.color, layer.opacity || 1);
+                    ctx.fill(path);
+                    ctx.restore();
+                }]);
+            } else if(layer.type === "embroidery") {
+                renderActions.push([ layer.z, async () => {
+                    ctx.save();
+                    ctx.scale(qualityScale, qualityScale);
+                    await renderEmbroiderMatrix(canvas, layer.embroiderMatrix, {
+                        offset: [0,0],
+                        clipPath: new Path2D(layer.embroiderMatrix.frame.path),
+                        clipOffset: layer.position,
+                        apparentBlockSize: layer.size[0] / layer.embroiderMatrix.size[0]
+                    });
+                    ctx.restore();
+                }]);
+            }
+        }
+    }
+
+    // Perform render actions
+    renderActions.sort((a, b) => a[0] - b[0]);
+    for(const [ z, action ] of renderActions) await action();
 }
