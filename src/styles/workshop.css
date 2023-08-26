@@ -98,3 +98,34 @@
 }
 
 
+.main-window.workshop > .modals:not(.color-picker, .rename) { display: none; }
+.main-window.workshop > .modals:not(.color-picker) .color-picker-modal,
+.main-window.workshop > .modals:not(.rename) .rename-modal { display: none; }
+
+.main-window.workshop .color-picker-modal {
+    max-width: 400px;
+    user-select: none;
+    
+}
+
+.main-window.workshop .color-picker-modal .color-item {
+    height: 60px;
+    width: 60px;    
+    background-color: A18738;
+    border: 7px solid var(--color-light);
+    border-radius: 5px;
+    display: inline-block;
+    vertical-align: middle;
+    /* margin-bottom: 5px; */
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.main-window.workshop .color-picker-modal .color-item:hover {
+    outline: 5px solid var(--color-secondary);
+}
+
+.main-window.workshop .color-picker-modal .color-item:active {
+    transform: scale(0.98);
+}
