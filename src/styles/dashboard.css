@@ -15,10 +15,11 @@
     position: absolute;
     top: 0;
     left: 0;
+    overflow: hidden;
 }
 
 .main-window.dashboard:not(.showcasing) > .showcase {
-    display: none;
+    pointer-events: none;
 }
 
 /* .main-window.dashboard * {
@@ -173,4 +174,148 @@
     width: 100%;
     background: linear-gradient(to bottom, var(--color-primary), rgba(0,0,0,0));
     opacity: 0.9;
+}
+
+
+
+
+/* SHOWCASE */
+.main-window.dashboard.showcasing > .gallery > header {
+    transition: 900ms ease;
+    transform: translateY(-100px);
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+.main-window.dashboard.showcasing > .gallery > main {
+    transition: 400ms ease;
+    opacity: 0;
+}
+
+.main-window.dashboard > .showcase * {
+    /* outline: 1px solid red; */
+}
+
+.main-window.dashboard > .showcase > header {
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+}
+.main-window.dashboard > .showcase > header .left {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    
+    transition: 900ms ease;
+}
+
+.main-window.dashboard > .showcase > header .center {
+    width: 100%;
+    text-align: center; 
+    margin-top: 40px;
+    transition: 900ms ease;
+}
+
+
+.main-window.dashboard > .showcase > header .logo {
+    height: 45px;
+    transform: translateY(5px);
+    margin-right: 10px;
+}
+
+.main-window.dashboard > .showcase > main .name {
+    width: 100%;
+    text-align: center;
+    font-size: 50px;
+    position: absolute;
+    bottom: 80px;
+    left: 0;
+    transition: 900ms ease;
+}
+
+
+.main-window.dashboard > .showcase > footer {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    transition: 900ms ease;
+}
+
+.main-window.dashboard > .showcase .previews {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    z-index: 0;
+
+    transition: 900ms ease;
+}
+
+.main-window.dashboard > .showcase .previews::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.main-window.dashboard > .showcase .preview {
+    /* outline: 1px solid red; */
+    height: 450px;
+    width: 450px;
+    position: absolute;
+    top: 120px;
+    transition: 900ms ease;
+}
+
+.main-window.dashboard > .showcase .preview:not(.active) {
+    transform: scale(0.7);
+    opacity: 0.3;
+}
+
+.main-window.dashboard > .showcase .preview canvas {
+    height: 100%;
+    width: 100%;
+}
+
+.main-window.dashboard > .showcase .preview:nth-child(1) {
+    left: 550px;
+}
+
+.main-window.dashboard > .showcase .preview:nth-child(2) {
+    left: 1050px;
+}
+
+
+
+
+/* BEFORE SHOWCASE */
+.main-window.dashboard:not(.showcasing) > .showcase {
+    /* display: none; */
+}
+.main-window.dashboard:not(.showcasing) > .showcase > header .left {
+    opacity: 0;
+    transform: translateY(70px);
+}
+
+.main-window.dashboard:not(.showcasing) > .showcase > header .center {
+    opacity: 0;
+    transform: translateY(70px);
+}
+
+.main-window.dashboard:not(.showcasing) > .showcase > main .name {
+    opacity: 0;
+    transform: translateY(70px);
+}
+
+
+.main-window.dashboard:not(.showcasing) > .showcase > footer {
+    opacity: 0;
+    transform: translateY(70px);
+}
+
+.main-window.dashboard:not(.showcasing) > .showcase .preview:not(.active) {
+    opacity: 0;
+    transform: scale(0.8) translateY(70px);
 }
