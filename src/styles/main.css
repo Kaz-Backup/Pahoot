@@ -7,10 +7,12 @@ body {
     --main-ratio: calc(4/3);
     --color-primary: #5E493F;
     --color-primary-light: #7D5846;
+    --color-primary-dark: #46352D;
     --color-secondary: #997460;
     --color-secondary-light: #B07051;
     --color-accent: #E7CB7A;
     --color-light: #F7EED2;
+    --color-light2: #B8AD8A;
     --color-dark: #3B302A;
     --color-weaved: #A89F84;
     --color-weaved-stroke: #948B6D;
@@ -33,4 +35,10 @@ body {
 
 .template {
     display: none;
+}
+
+.logo {
+    height: 50px;
+    user-select: none;
+    pointer-events: none;
 }

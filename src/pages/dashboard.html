@@ -1,0 +1,50 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="../../ext/fontawesome/css/all.css">
+    <!-- <link rel="stylesheet" href="../../ext/fontawesome/css/solid.css"> -->
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/dashboard.css">
+</head>
+<body>
+    <main class="main-window dashboard">
+        <div class="gallery">
+            <header>
+                <div class="center">
+                    <img class="logo" src="../../assets/images/logo.png">
+                    <h6>Gallery</h6>
+                </div>
+                <div class="right">
+                    <button class="medium" id="create-btn">CREATE</button>
+                    <button class="medium secondary icon" id="info-btn"><i class="fa-solid fa-circle-info"></i></button>
+                    <button class="medium secondary icon" id="settings-btn"><i class="fa-solid fa-gear"></i></button>
+                </div>
+            </header>
+            <main>
+                <div class="racks">
+                    <div class="rack template">
+                        <div class="product template">
+                            <div class="preview">
+                                <canvas height="500" width="500"></canvas>
+                            </div>
+                            <div class="lower">
+                                <div class="tag">Bag #1</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="overlays">
+                    <div class="top"></div>
+                    <div class="bottom"></div>
+                </div>
+            </main>
+        </div>
+        <div class="showcase">
+
+        </div>
+    </main>
+    <script src="../scripts/main.js"></script>
+    <script src="../scripts/models.js"></script>
+    <script src="../scripts/render.js"></script>
+    <script src="../scripts/dashboard.js"></script>
+</body>

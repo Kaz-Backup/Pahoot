@@ -164,6 +164,12 @@ h4 {
     font-weight: normal;
 }
 
+h6 {
+    font-size: 35px;
+    margin: 0;
+    font-weight: normal;
+}
+
 .modals {
     position: absolute;
     z-index: 100;

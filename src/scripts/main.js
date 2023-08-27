@@ -75,6 +75,11 @@ const LocalDB = {
         return JSON.parse(localStorage.getItem(saveKey));
     },
 
+    getKeys() {
+        const collectionKey = "___keys";
+        return this.get(collectionKey);
+    },
+
     addToKeys(key) {
         const collectionKey = "___keys";
         let allKeys = this.get(collectionKey);
