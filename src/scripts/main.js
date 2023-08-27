@@ -34,6 +34,31 @@ function generateId() {
     return `${Date.now()}-${Math.floor(Math.random()*89999 + 10000)}`;
 }
 
+function createModal(key, element) {
+    function closeModal() {
+        element.parentElement.classList.remove(key);
+    };
+
+    function showModal() {
+        element.parentElement.classList.add(key);
+    };
+
+    const modal = {
+        onInternalClosed: () => {},
+        get(selector) { return element.querySelector(selector); },
+        close: () => closeModal(),
+        show: () => showModal()
+    };
+
+    const closeBtn = element.querySelector(".close-btn");
+    if(closeBtn) closeBtn.onclick = () => {
+        closeModal();
+        modal.onInternalClosed();
+    }
+    
+    return modal;
+}
+
 const LocalDB = {
     getSaveKey(key) {
         return `pahoot-values-${key}`;
@@ -60,3 +85,18 @@ const LocalDB = {
             JSON.stringify(allKeys));
     }
 };
+
+const COLORS = [
+    "#D9D9D9", "#C7C1B6", "#7E675C",
+    "#4E3F39", "#3F3F3F", "#3B3938",
+    "#E7B7C5", "#B057A1", "#AD4564",
+    "#922C4A", "#712F47", "#6C1C39",
+    "#F6C5B6", "#F4BF99", "#FA8C6A",
+    "#D8884F", "#AD5E25", "#864E26",
+    "#ECDE97", "#DCD87E", "#EACC0A",
+    "#EAB90A", "#BC9A42", "#7F7647",
+    "#CCDDAF", "#7DC48D", "#4B9B5C",
+    "#41703A", "#3C5217", "#1E3E27",
+    "#84D5D5", "#4D92C3", "#426D8B",
+    "#364198", "#3E4474", "#382364"
+];

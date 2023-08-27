@@ -74,7 +74,7 @@ button.small {
     padding: 4px 15px;
 }
 
-button.medium i {
+button.medium:not(.icon) i {
     font-size: 17px;
     vertical-align: middle;
     transform: translateY(-2px);

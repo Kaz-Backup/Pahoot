@@ -8,31 +8,31 @@
 </head>
 <body>
     <main class="main-window workshop">
-        <div class="modals color-picker">
+        <div class="modals">
             <div class="modal color-picker-modal">
                 <h4>Choose Color</h4>
                 <button class="icon medium close-btn"><i class="fa-solid fa-xmark"></i></button>
                 <br>
-                <div class="color-selection">
-                    <div class="color-item"></div>
-                    <div class="color-item"></div>
-                    <div class="color-item"></div>
-                    <div class="color-item"></div>
-                    <div class="color-item"></div>
-                    <div class="color-item"></div>
-                    <div class="color-item"></div>
-                    <div class="color-item"></div>
-                    <div class="color-item"></div>
-                </div>
+                
+                <div class="color-selection"></div>
             </div>
             <div class="modal rename-modal">
-    
+                <h4>Rename</h4>
+                <button class="icon medium close-btn"><i class="fa-solid fa-xmark"></i></button>
+                <br>
+                <input placeholder="Set name">
+                <br><br>
+                <div class="button-container">
+                    <button class="medium save-btn">SAVE</button>
+                </div>
+                
             </div>
         </div>
         <header>
             <div class="left"><h2>My Workshop</h2></div>
             <div class="right">
-                <button class="medium secondary"><i class="fa-solid fa-pen"></i> Rename</button>
+                <button class="medium secondary" id="rename-btn"><i class="fa-solid fa-pen"></i> Rename</button>
+                <button class="medium icon secondary" id="exit-btn"><i class="fa-solid fa-xmark"></i></button>
             </div>
         </header>
         <main>

@@ -64,6 +64,7 @@ async function preloadBlockImages(blocks) {
    for(const { block, colors } of blocks) await getBlockImage({ block, colors });
 }
 
+
 /**
 * 
 * @param {{ id, colors: BlockColors, block: BlockSpriteType, position: number[],
@@ -274,8 +275,10 @@ async function renderProduct(canvas, product, options) {
 
     if(!qualityScale) qualityScale = 3;
 
-    canvas.height *= qualityScale;
-    canvas.width *= qualityScale;
+    if(!canvas.originalSize) canvas.originalSize = [ canvas.width, canvas.height ];
+
+    canvas.height = canvas.originalSize[0] * qualityScale;
+    canvas.width = canvas.originalSize[0] * qualityScale;
 
     const ctx = canvas.getContext("2d");
     const renderActions = [];
@@ -305,6 +308,7 @@ async function renderProduct(canvas, product, options) {
                 renderActions.push([ layer.z, async () => {
                     ctx.save();
                     ctx.scale(qualityScale, qualityScale);
+                    layer.embroiderMatrix.weavedColors = { fill: colors[layer.colorIndex], stroke: "rgba(0,0,0,0.15)"};
                     await renderEmbroiderMatrix(canvas, layer.embroiderMatrix, {
                         offset: [0,0],
                         clipPath: new Path2D(layer.embroiderMatrix.frame.path),
@@ -320,4 +324,18 @@ async function renderProduct(canvas, product, options) {
     // Perform render actions
     renderActions.sort((a, b) => a[0] - b[0]);
     for(const [ z, action ] of renderActions) await action();
+}
+
+async function preloadAllBlockImages() {
+    // { fill: colors[layer.colorIndex], stroke: "rgba(0,0,0,0.15)"}
+    const blocks = [ `weaved-h`, `weaved-v`, `thread-h`, `thread-v` ];
+    const loadables = [];
+
+    for(const block of blocks) {
+        loadables.push(...COLORS.map(color => ({
+            block, colors: { fill: color, stroke: "rgba(100,100,100,0.15)" }
+        })));
+    }
+
+    await preloadBlockImages(loadables);
 }
