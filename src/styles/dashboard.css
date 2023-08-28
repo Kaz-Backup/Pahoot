@@ -6,6 +6,8 @@
     display: flex;
     flex-direction: column;
     background: linear-gradient(to bottom, var(--color-primary), var(--color-primary-dark));   
+    
+    user-select: none;
 }
 
 .main-window.dashboard > .gallery, 
@@ -35,7 +37,7 @@
     box-sizing: border-box;
     pointer-events: none;
     
-    transition: 150ms ease;
+    transition: 700ms ease;
 }
 
 .main-window.dashboard > .gallery > header .center {
@@ -128,6 +130,12 @@
     height: 250px;
     width: 250px;
     transform: translateY(-30px);
+    transition: 1000ms ease-out;
+}
+
+.main-window.dashboard > .gallery .product:not(.ready) canvas {
+    transform: translateY(-50px);
+    opacity: 0;
 }
 
 .main-window.dashboard > .gallery .product .lower {
@@ -181,8 +189,7 @@
 
 /* SHOWCASE */
 .main-window.dashboard.showcasing > .gallery > header {
-    transition: 900ms ease;
-    transform: translateY(-100px);
+    /* transform: translateY(-100px); */
     opacity: 0 !important;
     pointer-events: none;
 }
@@ -206,14 +213,14 @@
     top: 40px;
     left: 40px;
     
-    transition: 900ms ease;
+    transition: 700ms ease;
 }
 
 .main-window.dashboard > .showcase > header .center {
     width: 100%;
     text-align: center; 
     margin-top: 40px;
-    transition: 900ms ease;
+    transition: 700ms ease;
 }
 
 
@@ -230,6 +237,7 @@
     position: absolute;
     bottom: 80px;
     left: 0;
+    user-select: none;
     transition: 900ms ease;
 }
 
@@ -266,12 +274,16 @@
     width: 450px;
     position: absolute;
     top: 120px;
-    transition: 900ms ease;
+    transition: 500ms ease;
+}
+
+.main-window.dashboard > .showcase .preview:not(.active,.empty) {
+    cursor: pointer;
 }
 
 .main-window.dashboard > .showcase .preview:not(.active) {
-    transform: scale(0.7);
-    opacity: 0.3;
+    transform: scale(0.7) !important;
+    opacity: 0.3 !important;
 }
 
 .main-window.dashboard > .showcase .preview canvas {
@@ -296,26 +308,31 @@
 }
 .main-window.dashboard:not(.showcasing) > .showcase > header .left {
     opacity: 0;
-    transform: translateY(70px);
+    transform: translateY(-100px);
+    transition: 250ms ease-out;
 }
 
 .main-window.dashboard:not(.showcasing) > .showcase > header .center {
     opacity: 0;
-    transform: translateY(70px);
+    transform: translateY(-100px);
+    transition: 250ms ease-out;
 }
 
 .main-window.dashboard:not(.showcasing) > .showcase > main .name {
     opacity: 0;
     transform: translateY(70px);
+    transition: 250ms ease-out;
 }
 
 
 .main-window.dashboard:not(.showcasing) > .showcase > footer {
     opacity: 0;
     transform: translateY(70px);
+    transition: 250ms ease-out;
 }
 
 .main-window.dashboard:not(.showcasing) > .showcase .preview:not(.active) {
-    opacity: 0;
+    opacity: 0 !important;
     transform: scale(0.8) translateY(70px);
+    transition: 250ms ease-out;
 }

@@ -59,19 +59,20 @@ const DashboardManager = {
             const sy = racks.scrollTop;
             const maxScroll = 120;
             const headerOpacity = Math.max(0, maxScroll - sy)/maxScroll;
+            components.header.style.transition = "none";
             components.header.style.opacity = headerOpacity;
+            setTimeout(() => components.header.style.transition = "700ms ease",100);
+            
         };
 
         
         // Setup buttons
-        components.buttons.info.onclick = () => {
-            this.components.main.classList.add("showcasing");
-        };
 
         // Show products
         const products = this.products;
         const maxPPR = 3;
         const maxRacks = Math.ceil(products.length / maxPPR) || 1;
+        const elements = [];
         for(let i = 0; i < maxRacks; i++) {
             const rackElement = components.templates.rack.cloneNode(true);
             rackElement.classList.remove("template");
@@ -92,10 +93,14 @@ const DashboardManager = {
                 productElement.querySelector(".preview").onclick = () => {
                     this.showcaseProduct(product);
                 }
+
+                elements.push(productElement);
             }
 
             racks.appendChild(rackElement);
         }
+
+        elements.forEach((p, pi) => setTimeout(() => p.classList.add("ready"), 300 + pi*150));
     },
 
     async initShowcase() {
@@ -112,6 +117,12 @@ const DashboardManager = {
                 previewElement.id = `showcase-preview-${product.id}`;
                 const canvas = previewElement.querySelector("canvas");
                 await renderProduct(canvas, product);
+
+                previewElement.onclick = () => {
+                    this.showcaseActivate(product, previewElement);
+                }
+            } else {
+                previewElement.classList.add("empty");
             }
 
             const x = this.getShowcasePosition(pi);
@@ -120,7 +131,8 @@ const DashboardManager = {
             previewsParent.appendChild(previewElement);
         }
 
-        // Add padding
+        // Setup buttons
+        components.buttons.back.onclick = () => this.exitShowcase();
     },
 
     getShowcasePosition(pi) {
@@ -144,24 +156,51 @@ const DashboardManager = {
         const scrollX = activeX + previewWidth/2 - previewsParentWidth/2;
         previewsParent.scrollLeft = scrollX;
 
-        targetPreview.classList.add("active");
+        
+        
         targetPreview.style.left = fx + scrollX;
         targetPreview.style.transition = "none";
         targetPreview.style.top = fy;
         targetPreview.style.width = `${fw}px`;
         targetPreview.style.height = `${fh}px`;
         targetPreview.style.opacity = 1;
+        targetPreview.style.transform = "none";
 
         setTimeout(() => { 
-            targetPreview.style.transition = "900ms ease";
+            targetPreview.style.opacity = 1;
+            targetPreview.style.transition = "800ms ease";
             this.components.main.classList.add("showcasing");
+            targetPreview.classList.add("active");
             const x = this.getShowcasePosition(this.products.findIndex(p => p.id === product.id));
+            
             targetPreview.style.left = x;
             targetPreview.style.top = 120;
             targetPreview.style.width = this.view.previewWidth;
             targetPreview.style.height = this.view.previewWidth;
         }, 0);
         
+    },
+
+    showcaseActivate(product, element) {
+        const previewsParent = this.components.showcase.previews;
+        const previewsParentWidth = previewsParent.getBoundingClientRect().width;
+        const previewWidth = this.view.previewWidth;
+        const activeX = this.getShowcasePosition(this.products.findIndex(p => p.id === product.id));
+        const scrollX = activeX + previewWidth/2 - previewsParentWidth/2;
+        previewsParent.scrollTo({ left: scrollX, behavior: "smooth" });
+
+        [...this.components.showcase.previews.querySelectorAll(".preview")].forEach(p => p.classList.remove("active"));
+        element.classList.add("active");
+        
+        // Set name
+        setTimeout(() => this.components.showcase.name.innerText = product.id, 300);
+    },
+
+    exitShowcase() {
+        const activePreview = this.components.showcase.previews.querySelector(".preview.active");
+        this.components.main.classList.remove("showcasing");
+        activePreview.style.transition = "150ms ease-out";
+        activePreview.classList.remove("active"); 
     }
 }
 
