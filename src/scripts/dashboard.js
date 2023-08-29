@@ -178,6 +178,8 @@ const DashboardManager = {
             targetPreview.style.width = this.view.previewWidth;
             targetPreview.style.height = this.view.previewWidth;
         }, 0);
+
+        this.components.showcase.name.innerText = product.name;
         
     },
 
@@ -193,7 +195,7 @@ const DashboardManager = {
         element.classList.add("active");
         
         // Set name
-        setTimeout(() => this.components.showcase.name.innerText = product.id, 300);
+        setTimeout(() => this.components.showcase.name.innerText = product.name, 300);
     },
 
     exitShowcase() {

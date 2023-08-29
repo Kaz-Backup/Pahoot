@@ -50,7 +50,7 @@ class MouseController {
     
     /**
      * @param {HTMLElement} element
-     * @typedef { "span" | "spanRelease" | "click" | "down" | "hover" | "leave" | "scroll" } MCEvent
+     * @typedef { "up" | "span" | "spanRelease" | "click" | "down" | "hover" | "leave" | "scroll" } MCEvent
      * */
     constructor(element) {
         if(element) {
@@ -73,7 +73,7 @@ class MouseController {
                 isDown = true;
                 downCoords = getClientCoords(element, e);
 
-                this.trigger("down", { position: coords });
+                this.trigger("down", { position: coords, context: spanContext });
             });
 
             element.addEventListener("mouseup", e => {
@@ -88,9 +88,12 @@ class MouseController {
                             position: coords,
                             context: spanContext
                         });
-                        spanContext = {};
                     }
                 }
+
+                
+                spanContext = {};
+                this.trigger("up", { position: getClientCoords(element, e) });
                 
                 isDown = false;
                 downCoords = null;
@@ -423,7 +426,7 @@ class DesignMatrix {
     }
     
     static newBlank(options) {
-        let { size, frame } = options;
+        let { size, frame } = options || {};
         if(!size) size = EmbroiderMatrix.DEFAULT_SIZE;
         return new DesignMatrix({
             id: generateId(),

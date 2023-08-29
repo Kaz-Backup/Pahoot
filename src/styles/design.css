@@ -1,0 +1,112 @@
+
+.main-window.design {
+    height: 100%;
+    width: 100%;
+    background-color: var(--color-primary);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.main-window.design > .pixels,
+.main-window.design > .mouse,
+.main-window.design > .actions {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    user-select: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.main-window.design > .pixels {
+    overflow: hidden;
+}
+
+
+.main-window.design > .pixels canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.main-window.design > .actions,
+.main-window.design > .actions * {
+    /* pointer-events: none; */
+    pointer-events: none;
+}
+
+.main-window.design > .actions button {
+    pointer-events: auto;
+}
+
+
+.main-window.design > .actions button.active {
+    outline-color: var(--color-primary-light);
+}
+
+.main-window.design > .actions > header {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    justify-content: space-between;
+    
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+
+.main-window.design > .actions > header > .center {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    text-align: center;
+    user-select: none;
+}
+
+.main-window.design > .actions > header h3 {
+    font-size: 40px;
+    font-weight: normal;
+    margin: 0px;
+    margin-top: 25px;
+    color: var(--color-secondary);
+    /* text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5); */
+}
+
+.main-window.design > .actions .color-selection {
+    margin-bottom: 10px;
+}
+
+.main-window.design > .actions .color-selection .color-item {
+    box-sizing: border-box;
+    border: 5px solid var(--color-light);
+}
+
+.main-window.design > .actions .subactions {
+    float: right;
+}
+
+
+.main-window.design > .mouse[data-mode='move'] {
+    cursor: grab;
+}
+
+.main-window.design > .mouse[data-mode='move']:active {
+    cursor: grabbing;
+}
+
+
+.main-window.design .logs {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 13px;
+    color: #111;
+    font-family: sans-serif;
+    z-index: 1000;
+}

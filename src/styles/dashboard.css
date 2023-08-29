@@ -130,7 +130,7 @@
     height: 250px;
     width: 250px;
     transform: translateY(-30px);
-    transition: 1000ms ease-out;
+    transition: 500ms ease-out;
 }
 
 .main-window.dashboard > .gallery .product:not(.ready) canvas {
@@ -276,6 +276,16 @@
     top: 120px;
     transition: 500ms ease;
 }
+ 
+
+@keyframes bounce {
+    100% { transform: translateY(-10px); }
+}
+
+.main-window.dashboard > .showcase .preview.active .canvas-wrapper {
+    animation: bounce 900ms 500ms linear infinite alternate;
+    /* transition: 250ms ease-out; */
+}
 
 .main-window.dashboard > .showcase .preview:not(.active,.empty) {
     cursor: pointer;
@@ -289,6 +299,11 @@
 .main-window.dashboard > .showcase .preview canvas {
     height: 100%;
     width: 100%;
+    /* transition: 500ms ease; */
+}
+
+.main-window.dashboard > .showcase .preview:not(.active) canvas {
+    transition: 900ms ease;
 }
 
 .main-window.dashboard > .showcase .preview:nth-child(1) {
@@ -334,5 +349,10 @@
 .main-window.dashboard:not(.showcasing) > .showcase .preview:not(.active) {
     opacity: 0 !important;
     transform: scale(0.8) translateY(70px);
+    transition: 250ms ease-out;
+}
+
+.main-window.dashboard:not(.showcasing) > .showcase canvas {
+    transform: translateY(70px);
     transition: 250ms ease-out;
 }

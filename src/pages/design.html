@@ -1,0 +1,55 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="../../ext/fontawesome/css/all.css">
+    <!-- <link rel="stylesheet" href="../../ext/fontawesome/css/solid.css"> -->
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/design.css">
+</head>
+<body>
+    <main class="main-window design">
+        <div class="pixels">
+            <canvas></canvas>
+        </div>
+        <div class="mouse"></div>
+        <div class="actions">
+            <header>
+                <div class="left">
+                    <button class="icon large secondary" id="action-back"><i class="fas fa-arrow-left"></i></button>
+                    <button class="icon large secondary" id="action-paint"><i class="fas fa-paintbrush"></i></button>
+                    <button class="icon large secondary" id="action-erase"><i class="fas fa-eraser"></i></button>
+                    <button class="icon large secondary" id="action-bucket"><i class="fa-solid fa-fill-drip"></i></button>
+                    <button class="icon large secondary" id="action-move"><i class="fas fa-hand"></i></button>
+                </div>
+                <div class="center">
+                    <h3>Banig #1</h3>
+                </div>
+                <div class="right">
+                    <div class="color-selection">
+                        <button class="icon large light color-item"></button>
+                        <button class="icon large light color-item"></button>
+                        <button class="icon large light color-item"></button>
+                        <button class="icon large light color-item"></button>
+                        <button class="icon large light color-item"></button>
+                        <button class="icon large light color-item"></button>
+                    </div>
+                    <div class="subactions">
+                        <button class="icon small light" id="zoomout-btn"><i class="fas fa-minus"></i></button>
+                        <button class="icon small light" id="zoomin-btn"><i class="fas fa-plus"></i></button>
+                        <button class="icon small light disabled" id="undo-btn"><i class="fas fa-rotate-left"></i></button>
+                        <button class="icon small light disabled" id="redo-btn"><i class="fas fa-rotate-right"></i></button>
+                        <button class="icon small light" id="colors-btn"><i class="fas fa-droplet"></i></button>
+                    </div>
+                </div>
+            </header>
+            <footer>
+
+            </footer>
+            <div class="logs"></div>
+        </div>
+    </main>
+    <script src="../scripts/main.js"></script>
+    <script src="../scripts/models.js"></script>
+    <script src="../scripts/render.js"></script>
+    <script src="../scripts/design.js"></script>
+</body>
