@@ -1,0 +1,277 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" href="./../ext/fontawesome/css/all.css">
+        <link rel="stylesheet" href="./styles/main.css">
+        <link rel="stylesheet" href="./styles/components.css">
+
+        <link rel="stylesheet" href="./styles/dashboard.css">
+        <link rel="stylesheet" href="./styles/workshop.css">
+        <link rel="stylesheet" href="./styles/design.css">
+        <link rel="stylesheet" href="./styles/embroidery.css">
+
+        <link rel="stylesheet" href="./styles/index.css">
+    </head>
+    <body>
+        <div class="windows">
+            <main class="main-window dashboard">
+                <div class="modals">
+                    <div class="modal create-modal types">
+                        <button class="icon medium close-btn"><i class="fa-solid fa-xmark"></i></button>
+                        <div class="sections">
+                            <div class="types">
+                                <header>
+                                    <h4>Choose a Product Type</h4>
+                                </header>
+                                <main>
+                                    <div class="types-selection">
+                                        <div class="type-item template">
+                                            <div class="preview">
+                                                <canvas height="500" width="500"></canvas>
+                                            </div>
+                                            <div class="label"></div>
+                                        </div>
+                                    </div>
+                                </main>
+                            </div>
+                            <div class="templates">
+                                <div class="create-back-btn">
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                    <canvas height="500" width="500"></canvas>
+                                    <label></label>
+                                </div>
+                                <header>
+                                    <h4>Choose a design template</h4>
+                                </header>
+                                <main>
+                                    <div class="templates-selection">
+                                        <div class="template-item template">
+                                            <div class="preview">
+                                                <canvas height="500" width="500"></canvas>
+                                            </div>
+                                            <div class="label"></div>
+                                        </div>
+                                    </div>
+                                </main>
+                            </div>
+                        </div>
+                        <footer>
+                            <button class="medium" id="continue-btn">CONTINUE</button>
+                        </footer>
+                    </div>
+                </div>
+                <div class="gallery">
+                    <header>
+                        <div class="center">
+                            <img class="logo" src="../../assets/images/logo.png">
+                            <h6>Gallery</h6>
+                        </div>
+                        <div class="right">
+                            <button class="medium" id="create-btn">CREATE</button>
+                            <button class="medium secondary icon" id="info-btn"><i class="fa-solid fa-circle-info"></i></button>
+                            <button class="medium secondary icon" id="settings-btn"><i class="fa-solid fa-gear"></i></button>
+                        </div>
+                    </header>
+                    <main>
+                        <div class="racks">
+                            <div class="rack template">
+                                <div class="product template">
+                                    <div class="preview">
+                                        <canvas height="500" width="500"></canvas>
+                                    <div class="lower">
+                                        <div class="tag">Bag #1</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overlays">
+                            <div class="top"></div>
+                            <div class="bottom"></div>
+                        </div>
+                    </main>
+                </div>
+                <div class="showcase">
+                    <header>
+                        <div class="left">
+                            <button class="icon ghost large" id="back-btn"><i class="fa-solid fa-arrow-left"></i></button>
+                        </div>
+                        <div class="center">
+                            <img class="logo" src="../../assets/images/logo.png"><h2>Showcase</h2>
+                        </div>
+                    </header>
+                    <main>
+                        <div class="previews">
+                            <div class="preview template">
+                                <div class="canvas-wrapper">
+                                    <canvas height="500" width="500"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="name">Bag Name</div>    
+                    </main>
+        
+                    
+                    <footer>
+                        <button class="medium" id="customize-btn">CUSTOMIZE</button>
+                    </footer>
+                </div>
+            </main>
+            <main class="main-window workshop">
+                <div class="modals">
+                    <div class="modal color-picker-modal">
+                        <h4>Choose Color</h4>
+                        <button class="icon medium close-btn"><i class="fa-solid fa-xmark"></i></button>
+                        <br>
+                        
+                        <div class="color-selection"></div>
+                    </div>
+                </div>
+                <div class="modals">
+                    <div class="modal rename-modal">
+                        <h4>Rename</h4>
+                        <button class="icon medium close-btn"><i class="fa-solid fa-xmark"></i></button>
+                        <br>
+                        <input placeholder="Set name">
+                        <br><br>
+                        <div class="button-container">
+                            <button class="medium save-btn">SAVE</button>
+                        </div>
+                        
+                    </div>
+                </div>
+                <header>
+                    <div class="left"><h2>My Workshop</h2></div>
+                    <div class="right">
+                        <button class="medium secondary" id="rename-btn"><i class="fa-solid fa-pen"></i> Rename</button>
+                        <button class="medium icon secondary" id="exit-btn"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </header>
+                <main>
+                    <div class="preview">
+                        <canvas height="500" width="500"></canvas>
+                        <div class="name">Bag #1</div>
+                    </div>
+                    <div class="controls parts">
+                        <div class="part template">
+                            <header>
+                                <div class="left"><label class="part-label">Bag Handle</label></div>
+                                <div class="right">
+                                    <button class="icon large design-btn"><i class="fa-solid fa-palette"></i></button>
+                                    <button class="large embroider-btn">EMBROIDER</button>
+                                </div>
+                            </header>
+                            <table class="layers">
+                                <tr class="layer template">
+                                    <td><label class="layer-label">Inside</label></td>
+                                    <td width="100%"><div class="color-bar"></div></td>
+                                    <td><button class="small secondary">Change Color</button></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </main>
+            <main class="main-window design">
+                <div class="pixels">
+                    <canvas></canvas>
+                </div>
+                <div class="mouse"></div>
+                <div class="actions">
+                    <header>
+                        <div class="left">
+                            <button class="icon large secondary" id="action-back"><i class="fas fa-arrow-left"></i></button>
+                            <button class="icon large secondary" id="action-paint"><i class="fas fa-paintbrush"></i></button>
+                            <button class="icon large secondary" id="action-erase"><i class="fas fa-eraser"></i></button>
+                            <button class="icon large secondary" id="action-bucket"><i class="fa-solid fa-fill-drip"></i></button>
+                            <button class="icon large secondary" id="action-move"><i class="fas fa-hand"></i></button>
+                        </div>
+                        <div class="center">
+                            <h3>Banig #1</h3>
+                        </div>
+                        <div class="right">
+                            <div class="color-selection">
+                                <button class="icon large light color-item"></button>
+                                <button class="icon large light color-item"></button>
+                                <button class="icon large light color-item"></button>
+                                <button class="icon large light color-item"></button>
+                                <button class="icon large light color-item"></button>
+                                <button class="icon large light color-item"></button>
+                            </div>
+                            <div class="subactions">
+                                <button class="icon small light" id="zoomout-btn"><i class="fas fa-minus"></i></button>
+                                <button class="icon small light" id="zoomin-btn"><i class="fas fa-plus"></i></button>
+                                <button class="icon small light disabled" id="undo-btn"><i class="fas fa-rotate-left"></i></button>
+                                <button class="icon small light disabled" id="redo-btn"><i class="fas fa-rotate-right"></i></button>
+                                <button class="icon small light" id="colors-btn"><i class="fas fa-droplet"></i></button>
+                            </div>
+                        </div>
+                    </header>
+                    <footer>
+        
+                    </footer>
+                    <div class="logs hidden"></div>
+                </div>
+            </main>
+            <main class="main-window embroidery">
+                <div class="blocks">
+                    <canvas height="100" width="100"></canvas>
+                </div>
+                <div class="design">
+                    <canvas height="100" width="100"></canvas>
+                </div>
+                <div class="overlay">
+                    
+                </div>
+                <div class="mouse">
+                    <div class="thread-hover"></div>
+                </div>
+                <div class="actions">
+                    <header>
+                        <div class="left">
+                            <button class="icon large light" id="action-back"><i class="fas fa-arrow-left"></i></button>
+                            <button class="icon large light custom banig active" id="action-embroider"></button>
+                            <button class="icon large light custom blade hidden" id="action-cut"></button>
+                            <button class="icon large light" id="action-erase"><i class="fas fa-eraser"></i></button>
+                            <button class="icon large light" id="action-move"><i class="fas fa-hand"></i></button>
+                            <button class="icon large light" id="action-design"><i class="fas fa-palette"></i></button>
+                        </div>
+                        <div class="center">
+                            <h3>Banig #1</h3>
+                        </div>
+                        <div class="right">
+                            <div class="color-selection">
+                                <button class="icon large light color-item"></button>
+                                <button class="icon large light color-item"></button>
+                                <button class="icon large light color-item"></button>
+                                <button class="icon large light color-item"></button>
+                                <button class="icon large light color-item"></button>
+                                <button class="icon large light color-item"></button>
+                            </div>
+                            <div class="subactions">
+                                <button class="icon small light" id="zoomout-btn"><i class="fas fa-minus"></i></button>
+                                <button class="icon small light" id="zoomin-btn"><i class="fas fa-plus"></i></button>
+                                <button class="icon small light disabled" id="undo-btn"><i class="fas fa-rotate-left"></i></button>
+                                <button class="icon small light disabled" id="redo-btn"><i class="fas fa-rotate-right"></i></button>
+                                <button class="icon small light" id="colors-btn"><i class="fas fa-droplet"></i></button>
+                            </div>
+                        </div>
+                    </header>
+                    <footer>
+        
+                    </footer>
+                    <div class="logs hidden"></div>
+                </div>
+            </main>
+        </div>
+    </body>
+
+    <script src="./scripts/main.js"></script>
+    <script src="./scripts/models.js"></script>
+    <script src="./scripts/render.js"></script>
+    <script src="./scripts/dashboard.js"></script>
+    <script src="./scripts/workshop.js"></script>
+    <script src="./scripts/design.js"></script>
+    <script src="./scripts/embroidery.js"></script>
+    
+    <script src="./scripts/index.js"></script>
+</html>

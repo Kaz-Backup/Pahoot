@@ -8,6 +8,7 @@
 }
 
 .main-window.embroidery > .blocks,
+.main-window.embroidery > .design,
 .main-window.embroidery > .lifted,
 .main-window.embroidery > .overlay,
 .main-window.embroidery > .mouse,
@@ -27,10 +28,15 @@
 }
 
 
-.main-window.embroidery > .blocks canvas {
+.main-window.embroidery > .blocks canvas,
+.main-window.embroidery > .design canvas {
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.main-window.embroidery > .design canvas {
+    opacity: 0.3;
 }
 
 .main-window.embroidery > .actions,
@@ -155,4 +161,36 @@
 
 .blocks.v {
     background-color: blue;
+}
+
+/* Transition Animations */
+.main-window.embroidery > .actions > header .left { transition: 500ms ease; }
+.main-window.embroidery > .actions > header .center { transition: 500ms ease; }
+.main-window.embroidery > .actions > header .right { transition: 500ms ease; }
+.main-window.embroidery > .blocks { transition: 500ms ease; }
+.main-window.embroidery > .design { transition: 500ms ease; }
+
+
+.main-window.embroidery:not(.active) > .actions > header .left,
+.main-window.embroidery:not(.active) > .actions > header .center,
+.main-window.embroidery:not(.active) > .actions > header .right {
+    transform: translateY(-70px);
+    transition: 200ms ease-out;
+    opacity: 0;
+}
+
+.main-window.embroidery > .actions > header .center { transition-delay: 50ms; }
+.main-window.embroidery > .actions > header .right { transition-delay: 100ms; }
+
+
+.main-window.embroidery:not(.active) > .blocks {
+    transform: scale(1.1);
+    transition: 200ms ease-out;
+    opacity: 0;
+}
+
+.main-window.embroidery:not(.active) > .design {
+    transform: scale(1.15);
+    transition: 200ms 100ms ease-out;
+    opacity: 0;
 }

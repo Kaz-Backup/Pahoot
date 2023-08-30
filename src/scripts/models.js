@@ -531,6 +531,27 @@ class Product {
         });
     }
 
+    getEmbroiderMatrix() {
+        for(const part of this.parts) {
+            for(const layer of part.layers) {
+                if(layer.type === "embroidery") {
+                    return layer.embroiderMatrix;
+                }
+            }
+        }
+    }
+
+    setDesignMatrix(designMatrix) {
+        for(const part of this.parts) {
+            for(const layer of part.layers) {
+                if(layer.type === "embroidery") {
+                    layer.designMatrix = designMatrix;
+                    return;
+                }
+            }
+        }
+    }
+
     save(all = false) {
         LocalDB.save(`product-${this.id}`, this.serialize());
         if(all) {
@@ -550,19 +571,33 @@ class Product {
         if(!obj) return null;
         return Product.parse(obj);
     }
+    
+    static generateName(type) {
+        // Resets every 3 months
+        const code = Math.floor((Date.now() % (1000*60*60*24*90))/1000);
+        
+        return `${type} #${code}`; 
+    }
 
     static Bag(options) {
-        let { designMatrices, embroiderScale } = options || {};
+        let { designMatrices, embroiderScale, size } = options || {};
         
 
         const frame = { baseSize: [ 400, 400 ], path: "M3 92.8311H397.286L350.143 315.688L341.571 324.26H60.0395L50.1484 315.715L3 92.8311Z" };
         const designMatrix = designMatrices?.[0] || DesignMatrix.newBlank({ frame });
-        if(!embroiderScale) embroiderScale = 1;
-        const embroiderMatrix = EmbroiderMatrix.newBlank({ frame, scale: embroiderScale });
         
+        let baseSize = EmbroiderMatrix.DEFAULT_SIZE;
+        if(size) {
+            baseSize = size;
+            embroiderScale = 1;
+        } else if(!embroiderScale) embroiderScale = 1;
+        const embroiderMatrix = EmbroiderMatrix.newBlank({ frame, baseSize, scale: embroiderScale });
+        
+
         return new Product({
             id: generateId(),
             type: "bag",
+            name: Product.generateName("Bag"),
             parts: [
                 { id: generateId(), label: "Bag Handle", colors: [ "#A18738" ], layers: [
                     // Back handle: base

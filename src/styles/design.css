@@ -110,3 +110,29 @@
     font-family: sans-serif;
     z-index: 1000;
 }
+
+
+
+/* Transition Animations */
+.main-window.design > .actions > header .left { transition: 500ms ease; }
+.main-window.design > .actions > header .center { transition: 500ms ease; }
+.main-window.design > .actions > header .right { transition: 500ms ease; }
+.main-window.design > .pixels { transition: 500ms ease; }
+
+.main-window.design:not(.active) > .actions > header .left,
+.main-window.design:not(.active) > .actions > header .center,
+.main-window.design:not(.active) > .actions > header .right {
+    transform: translateY(-70px);
+    transition: 200ms ease-out;
+    opacity: 0;
+}
+
+.main-window.design > .actions > header .center { transition-delay: 50ms; }
+.main-window.design > .actions > header .right { transition-delay: 100ms; }
+
+
+.main-window.design:not(.active) > .pixels {
+    transform: scale(1.1);
+    transition: 200ms ease-out;
+    opacity: 0;
+}

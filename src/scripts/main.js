@@ -92,6 +92,17 @@ const LocalDB = {
     }
 };
 
+
+function getAllProducts() {
+    return LocalDB.get("products") || [];    
+}
+
+function addProduct(product) {
+    const products = getAllProducts();
+    products.push(product.id);
+    LocalDB.save("products", products);
+}
+
 const COLORS = [
     "#D9D9D9", "#C7C1B6", "#7E675C",
     "#4E3F39", "#3F3F3F", "#3B3938",
@@ -106,3 +117,9 @@ const COLORS = [
     "#84D5D5", "#4D92C3", "#426D8B",
     "#364198", "#3E4474", "#382364"
 ];
+
+function updateObject(obj, values) {
+    for(const key in values) {
+        obj[key] = values[key];
+    }
+}

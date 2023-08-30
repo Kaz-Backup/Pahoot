@@ -88,16 +88,38 @@ const DesignManager = {
         pending: false
     },
 
+
+    events: {},
+
     /**
      * @param {{ embroiderMatrix: EmbroiderMatrix, designMatrix: DesignMatrix }} options 
      */
     async initialize(options) {
+        this.events = options.events;
         this.matrices.design = options.designMatrix;
+
+        // Reset states
+        updateObject(this.view, {
+            offset: [ 0, 0 ],
+            zoom: 1,
+            blockSize: 30,
+            zoomMultipler: 1.2,
+            maxZoom: 3,
+            minZoom: 0.5
+        });
+
+        updateObject(this.states, {
+            activeColorsIndex: 1,
+            mode: "paint",
+            changeStates: [],
+            changeStatePointer: -1,
+            collector: []
+        });
 
         // Setup layers
         const layers = this.components.layers;
 
-        const { clientHeight, clientWidth } = layers.pixels;        
+        const { clientHeight, clientWidth } = document.body;        
         this.size = { height: clientHeight, width: clientWidth };
         layers.canvas.height = this.size.height;
         layers.canvas.width = this.size.width;
@@ -109,7 +131,7 @@ const DesignManager = {
 
         // Initialize actions
         const actionBtns = this.components.actions;
-        actionBtns.back.onclick = () => this.back();
+        actionBtns.back.onclick = () => this.events.onExit();
         actionBtns.paint.onclick = () => this.setMode("paint");
         actionBtns.bucket.onclick = () => this.setMode("bucket");
         actionBtns.move.onclick = () => this.setMode("move");
@@ -369,6 +391,16 @@ const DesignManager = {
         // Render Pixels
         await renderDesign(canvas, designMatrix, { grid: true, ...this.view });
 
+
+        // Render frame
+        const frame = designMatrix.frame;
+        const frameScale = designMatrix.size[0] * this.view.blockSize / frame.baseSize[0];
+        const frameImg = await getImageFromPath(frame.path, frame.baseSize,
+            { stroke: "#857A55", strokeWidth: 5 / frameScale });
+        const framePos = this.getApparentPosition([0,0]).map(n => Math.floor(n));
+        ctx.drawImage(frameImg, ...framePos, ...totalSize);
+
+
         await new Promise(resolve => setTimeout(resolve, this.renderStates.cooldownTime));
         this.renderStates.cooldown = false;
         if(this.renderStates.pending) {
@@ -506,6 +538,7 @@ const DesignManager = {
 
     save() {
         // this.matrices.embroider.save();
+        this.matrices.design.save();
     }
     
 };
@@ -556,4 +589,4 @@ async function test() {
     // })
 }
 
-test();
+// test();

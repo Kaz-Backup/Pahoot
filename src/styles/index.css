@@ -1,0 +1,26 @@
+.windows {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--color-primary);
+}
+
+.main-window {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    transition: 500ms ease;
+    overflow: hidden;
+}
+
+.main-window:not(.active) {
+    opacity: 0;
+    pointer-events: none !important;
+    transition: 200ms ease-out;
+}
+
+.main-window.active {
+    z-index: 1000;
+}

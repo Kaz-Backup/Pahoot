@@ -21,11 +21,14 @@ const WorkshopManager = {
     /** @type {Product} */
     product: null,
 
+    events: {},
+
     /**
      * 
      * @param {{ product: Product }} options 
      */
     async initialize(options) {
+        this.events = options.events;
         preloadAllBlockImages();
         const { product } = options;
 
@@ -33,6 +36,8 @@ const WorkshopManager = {
 
         // Setup part controls
         const partsParent = this.components.parts;
+        partsParent.innerHTML = "";
+        
         for(const part of product.parts) {
             const partElement = this.components.templates.part.cloneNode(true);
             partElement.classList.remove("template");
@@ -41,6 +46,18 @@ const WorkshopManager = {
             const embroideryLayer = part.layers.find(l => l.type === "embroidery");
             if(embroideryLayer) {
                 partElement.classList.add("embroidery");
+
+                // Setup embroidery and design buttons
+                partElement.querySelector(".embroider-btn").onclick = () => 
+                    this.events.onEmbroider({
+                        embroiderMatrix: embroideryLayer.embroiderMatrix,
+                        designMatrix: embroideryLayer.designMatrix
+                    });
+
+                partElement.querySelector(".design-btn").onclick = () => 
+                    this.events.onDesign({
+                        designMatrix: embroideryLayer.designMatrix
+                    });
             }
 
             const colors = part.colors || [];
@@ -83,6 +100,7 @@ const WorkshopManager = {
                 this.save();
             }
         };
+        buttons.exit.onclick = () => this.events.onExit();
 
         this.refreshStates();
     },
@@ -164,4 +182,4 @@ function test() {
     WorkshopManager.initialize({ product });
 }
 
-test();
+// test();

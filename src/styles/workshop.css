@@ -1,3 +1,4 @@
+
 .main-window.workshop {
     height: 100%;
     width: 100%;
@@ -103,10 +104,16 @@
     margin-left: 0;
 }
 
+.main-window.workshop > .modals:not(.color-picker, .rename) { 
+    opacity: 0;
+    pointer-events: none;
+}
 
-.main-window.workshop > .modals:not(.color-picker, .rename) { display: none; }
 .main-window.workshop > .modals:not(.color-picker) .color-picker-modal,
-.main-window.workshop > .modals:not(.rename) .rename-modal { display: none; }
+.main-window.workshop > .modals:not(.rename) .rename-modal { 
+    opacity: 0;
+    pointer-events: none;
+}
 
 .main-window.workshop .color-picker-modal {
     max-width: 420px;
@@ -164,4 +171,50 @@
 
 .main-window.workshop .rename-modal .button-container {
     text-align: center;
+}
+
+
+
+/* Transition Animations */
+.main-window.workshop > header { transition: 500ms ease; }
+.main-window.workshop > main > .preview { transition: 500ms ease; }
+.main-window.workshop > main > .controls { transition: 500ms ease; }
+
+
+.main-window.workshop:not(.active) > header {
+    transform: translateY(-70px);
+    transition: 200ms ease-out;
+    opacity: 0;
+}
+
+.main-window.workshop:not(.active) > main > .preview {
+    transform: translateX(-70px);
+    transition: 200ms ease-out;
+    opacity: 0;
+}
+
+.main-window.workshop:not(.active) > main > .controls {
+    transform: translateX(70px);
+    transition: 200ms ease-out;
+    opacity: 0;
+}
+
+
+/* Modal transitions */
+.main-window.workshop > .modals.color-picker .color-picker-modal,
+.main-window.workshop > .modals.rename .rename-modal { 
+    transition: 500ms ease;
+}
+
+.main-window.workshop > .modals:not(.color-picker,.rename) { 
+    pointer-events: none;
+    opacity: 0;
+    transition: 300ms ease-out;
+}
+
+.main-window.workshop > .modals:not(.color-picker) .color-picker-modal,
+.main-window.workshop > .modals:not(.rename) .rename-modal {
+    opacity: 0;
+    transform: translateY(70px);
+    transition: 150ms ease-out;
 }

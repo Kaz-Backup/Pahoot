@@ -79,7 +79,7 @@
     display: flex;
     width: 100%;
     box-sizing: border-box;
-    justify-content: space-between;
+    justify-content: start;
     padding: 0 15% 0 15%;
     margin-bottom: 100px;
     background-image: url(../../assets/images/rack.png);
@@ -288,6 +288,10 @@
     /* transition: 250ms ease-out; */
 }
 
+.main-window.dashboard > .showcase .preview.empty {
+    width: 500px;
+}
+
 .main-window.dashboard > .showcase .preview:not(.active,.empty) {
     cursor: pointer;
 }
@@ -295,6 +299,7 @@
 .main-window.dashboard > .showcase .preview:not(.active) {
     transform: scale(0.7) !important;
     opacity: 0.3 !important;
+    filter: blur(5px) !important;
 }
 
 .main-window.dashboard > .showcase .preview canvas {
@@ -369,7 +374,7 @@
 }
 
 .main-window.dashboard > .modals .create-modal {
-    width: 85%;
+    width: 55%;
     height: 70%;
     display: flex;
     flex-direction: column;

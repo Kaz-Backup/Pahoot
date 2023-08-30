@@ -5,6 +5,7 @@ const EmbroideryManager = {
             canvas: $(".main-window.embroidery > .blocks canvas"),
             lifted: $(".main-window.embroidery > .lifted"),
             design: $(".main-window.embroidery > .design"),
+            designCanvas: $(".main-window.embroidery > .design canvas"),
             overlay: $(".main-window.embroidery > .overlay"),
             mouse: $(".main-window.embroidery > .mouse"),
             actions: $(".main-window.embroidery > .actions"),
@@ -99,31 +100,58 @@ const EmbroideryManager = {
         maxThreadLength: 10,
         spanThreshold: 20
     },
+    
+    events: {},
 
     /**
      * @param {{ embroiderMatrix: EmbroiderMatrix, designMatrix: DesignMatrix }} options 
      */
     async initialize(options) {
+        this.events = options.events;
         this.matrices.embroider = options.embroiderMatrix;
         this.matrices.design = options.designMatrix;
 
 
+        // Reset states
+        updateObject(this.view, {
+            offset: [ 0, 0 ],
+            zoom: 1,
+            blockSize: 30,
+            zoomMultipler: 1.2,
+            maxZoom: 3,
+            minZoom: 0.5
+        });
+        
+        updateObject(this.states, {
+            activeColorsIndex: 1,
+            mode: "embroider",
+            changeStates: [],
+            changeStatePointer: -1,
+            showDesign: true,
+        
+            hoveredThread: null
+        });
+        
         // Setup layers
         const layers = this.components.layers;
 
-        const { clientHeight, clientWidth } = layers.blocks;        
+        const { clientHeight, clientWidth } = document.body;        
         this.size = { height: clientHeight, width: clientWidth };
         layers.canvas.height = this.size.height;
         layers.canvas.width = this.size.width;
         layers.canvas.style.height = this.size.height;
         layers.canvas.style.width = this.size.width;
+        layers.designCanvas.height = this.size.height;
+        layers.designCanvas.width = this.size.width;
+        layers.designCanvas.style.height = this.size.height;
+        layers.designCanvas.style.width = this.size.width;
         
         this.mouseCtrl = new MouseController(layers.mouse);
 
 
         // Initialize actions
         const actionBtns = this.components.actions;
-        actionBtns.back.onclick = () => this.back();
+        actionBtns.back.onclick = () => this.events.onExit();
         actionBtns.embroider.onclick = () => this.setMode("embroider");
         actionBtns.cut.onclick = () => this.setMode("cut");
         actionBtns.move.onclick = () => this.setMode("move");
@@ -190,20 +218,7 @@ const EmbroideryManager = {
         this.view.offset = scaleVector(subtractVectors(
             [this.size.width,this.size.height], totalSize), -1/2).map(d => Math.floor(d));
         this.view.offset[1] -= 20;
-
-
-        // Preload blocks
-        const weavedColors = this.matrices.embroider.weavedColors;
-        await preloadBlockImages([
-            { block: `weaved-h`, colors: weavedColors },
-            { block: `weaved-v`, colors: weavedColors },
-            { block: `thread-gh`, colors: {} },
-            { block: `thread-gv`, colors: {} },
-            ...this.palette.map(colors => ({ block: `thread-h`, colors })),
-            ...this.palette.map(colors => ({ block: `thread-v`, colors }))
-        ]);
-
-
+        
         this.renderAll();
     },
 
@@ -265,6 +280,7 @@ const EmbroideryManager = {
     toggleDesignView() {
         this.states.showDesign = !this.states.showDesign;
         this.refreshStatesView();
+        this.renderAll();
     },
 
     span({ position, startPosition, context }) {
@@ -407,6 +423,7 @@ const EmbroideryManager = {
 
         this.renderStates.cooldown = true;
         const embroiderMatrix = this.matrices.embroider;
+        const designMatrix = this.matrices.design;
         
         const canvas = this.components.layers.canvas;
         /** @type {CanvasRenderingContext2D} */
@@ -414,8 +431,14 @@ const EmbroideryManager = {
 
         // Clear canvas
         ctx.clearRect(0, 0, this.size.width, this.size.height);
-
+        
+        // Render matrix
         await renderEmbroiderMatrix(canvas, embroiderMatrix, this.view);
+
+        // Render design
+        const designCanvas = this.components.layers.designCanvas;
+        designCanvas.getContext("2d").clearRect(0, 0, this.size.width, this.size.height);
+        if(this.states.showDesign) await renderDesign(designCanvas, designMatrix, this.view)
 
         // Render frame
         const frame = embroiderMatrix.frame;
@@ -611,4 +634,4 @@ async function test() {
     // })
 }
 
-test();
+// test();

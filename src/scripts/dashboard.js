@@ -60,27 +60,27 @@ const DashboardManager = {
     PRODUCT_TYPES: [],
     TEMPLATES: [],
 
-    async initialize() {
-        const productsIds = LocalDB.get("products");
-        this.products = productsIds.map(pid => Product.load(pid));
+    events: {},
 
-        // Temporary
-        this.products.forEach(p => p.id = generateId());
+    async initialize(options) {
+        this.events = options.events;
+        
+        const productsIds = getAllProducts();
+        this.products = productsIds.map(pid => Product.load(pid));
 
 
         // Load product types
         this.PRODUCT_TYPES = [
-            { name: "Bag", sample: Product.Bag() },
-            { name: "Bag 2", sample: Product.Bag() },
-            { name: "Bag 3", sample: Product.Bag() },
+            { name: "Bag", build: args => Product.Bag(args) }
         ];
 
         // Load templates
         this.TEMPLATES = [
-            { name: "Blank", sample: DesignMatrix.newBlank() },  
-            { name: "Blank 2", sample: DesignMatrix.newBlank() },  
+            { name: "Blank", build: args => DesignMatrix.newBlank(args) }  
         ];
         
+        // Restore from previous state
+        await this.exitShowcase();
 
         await this.initGallery();
         await this.initShowcase();
@@ -91,6 +91,7 @@ const DashboardManager = {
         
         /** @type {HTMLDivElement} */
         const racks = components.racks;
+        racks.innerHTML = "";
     
         // Setup scroll fade
         racks.onscroll = event => {
@@ -145,6 +146,8 @@ const DashboardManager = {
     async initShowcase() {
         const components = this.components.showcase;
         const previewsParent = components.previews;
+
+        previewsParent.innerHTML = "";
 
         // Setup previews
         for(let pi = -1; pi <= this.products.length; pi++) {
@@ -219,7 +222,7 @@ const DashboardManager = {
         }, 0);
 
         this.components.showcase.name.innerText = product.name;
-        
+        this.components.showcase.buttons.customize.onclick = () => this.events.onCustomize(product);
     },
 
     showcaseActivate(product, element) {
@@ -235,10 +238,12 @@ const DashboardManager = {
         
         // Set name
         setTimeout(() => this.components.showcase.name.innerText = product.name, 300);
+        this.components.showcase.buttons.customize.onclick = () => this.events.onCustomize(product);
     },
 
     exitShowcase() {
         const activePreview = this.components.showcase.previews.querySelector(".preview.active");
+        if(!activePreview) return;
         this.components.main.classList.remove("showcasing");
         activePreview.style.transition = "150ms ease-out";
         activePreview.classList.remove("active"); 
@@ -265,10 +270,10 @@ const DashboardManager = {
         // Setup buttons
         modalComponents.buttons.continue.onclick = () => {
             if(states.section === "types") showSection("templates");
-            else if(states.section === "templates") this.makeProduct(
-                this.PRODUCT_TYPES[states.activeTypeIndex],
-                this.TEMPLATES[states.activeTemplateIndex]
-            )
+            else if(states.section === "templates") this.makeProduct({ 
+                type: this.PRODUCT_TYPES[states.activeTypeIndex],
+                template: this.TEMPLATES[states.activeTemplateIndex] 
+            })
         };
 
         modalComponents.buttons.templatesBack.onclick = () => {
@@ -289,7 +294,7 @@ const DashboardManager = {
             const activeType = DashboardManager.PRODUCT_TYPES[index];
             modalComponents.buttons.templatesBack.querySelector("label").innerText = activeType.name;
             const canvas = modalComponents.buttons.templatesBack.querySelector("canvas");
-            renderProduct(canvas, activeType.sample, { qualityScale: 1 });
+            renderProduct(canvas, activeType.build(), { qualityScale: 1 });
         }
 
         for(let i = 0; i < this.PRODUCT_TYPES.length; i++) {
@@ -297,7 +302,7 @@ const DashboardManager = {
             typeElement.classList.remove("template");
 
             const typeItem = this.PRODUCT_TYPES[i];
-            const sample = typeItem.sample;
+            const sample = typeItem.build();
             const canvas = typeElement.querySelector("canvas");
             await renderProduct(canvas, sample, { qualityScale: 1 });
 
@@ -331,7 +336,7 @@ const DashboardManager = {
 
             const templateItem = this.TEMPLATES[i];
             const canvas = templateElement.querySelector("canvas");
-            await renderDesign(canvas, templateItem.sample);
+            await renderDesign(canvas, templateItem.build());
 
             templateElement.querySelector(".label").innerText = templateItem.name;
 
@@ -351,8 +356,8 @@ const DashboardManager = {
         modal.show();
     },
 
-    makeProduct(typeItem, templateItem) {
-        console.log(`About to create a product (${typeItem.name} - ${templateItem.name})`);
+    makeProduct(options) {
+        this.events.onCreate(options);
     }
 }
 
@@ -368,4 +373,4 @@ function test() {
     DashboardManager.initialize();
 }
 
-test();
+// test();
