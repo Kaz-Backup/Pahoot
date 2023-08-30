@@ -158,10 +158,11 @@
 .main-window.dashboard > .gallery .overlays {
     height: 100%;
     width: 100%;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     pointer-events: none;
+    z-index: 2;
 }
 
 .main-window.dashboard > .gallery .overlays .bottom {
@@ -355,4 +356,199 @@
 .main-window.dashboard:not(.showcasing) > .showcase canvas {
     transform: translateY(70px);
     transition: 250ms ease-out;
+}
+
+
+
+.main-window.dashboard > .modals {
+    overflow: hidden;
+}
+
+.main-window.dashboard > .modals.create { 
+    transition: 300ms ease;
+}
+
+.main-window.dashboard > .modals .create-modal {
+    width: 85%;
+    height: 70%;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-window.dashboard > .modals .create-modal .close-btn {
+    z-index: 100;
+}
+
+.main-window.dashboard > .modals .create-modal > .sections {
+    flex: auto;
+    height: 550px;
+    position: relative;
+}
+
+.main-window.dashboard > .modals .create-modal > footer {
+    flex-basis: content;
+    text-align: right;
+    margin-top: 20px;
+}
+
+
+.main-window.dashboard .create-modal > .sections > .types,
+.main-window.dashboard .create-modal > .sections > .templates {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: 400ms ease;
+}
+
+.main-window.dashboard .create-modal:not(.types) > .sections > .types,
+.main-window.dashboard .create-modal:not(.templates) > .sections > .templates { 
+    opacity: 0; 
+    transition: 200ms ease-out;
+    pointer-events: none;
+}
+
+.main-window.dashboard .create-modal:not(.types) > .sections > .types { transform: translateX(-50px); }
+.main-window.dashboard .create-modal:not(.templates) > .sections > .templates { transform: translateX(50px); }
+
+
+.main-window.dashboard .create-modal > .sections > .types > header,
+.main-window.dashboard .create-modal > .sections > .templates > header {
+    flex-basis: content;
+}
+
+.main-window.dashboard .create-modal > .sections > .types > main,
+.main-window.dashboard .create-modal > .sections > .templates > main {
+    flex: auto;
+    overflow-y: auto;
+}
+
+.main-window.dashboard .create-modal > .sections > .types .types-selection {
+
+}
+
+.main-window.dashboard .create-modal > .sections > .types > main::-webkit-scrollbar,
+.main-window.dashboard .create-modal > .sections > .templates > main::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.main-window.dashboard .create-modal > .sections > .types > header,
+.main-window.dashboard .create-modal > .sections > .templates > header {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.main-window.dashboard .create-modal > .sections > .types .type-item,
+.main-window.dashboard .create-modal > .sections > .templates .template-item {
+    display: inline-block;
+    vertical-align: center;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 200ms ease; 
+}
+
+.main-window.dashboard .create-modal > .sections > .types .type-item:hover,
+.main-window.dashboard .create-modal > .sections > .types .type-item.active,
+.main-window.dashboard .create-modal > .sections > .templates .template-item:hover,
+.main-window.dashboard .create-modal > .sections > .templates .template-item.active {
+    background-color: rgba(230, 223, 181, 0.15);
+}
+
+.main-window.dashboard .create-modal > .sections > .types .type-item.active,
+.main-window.dashboard .create-modal > .sections > .templates .template-item.active {
+    outline: 5px solid var(--color-accent);
+} 
+
+
+.main-window.dashboard .create-modal > .sections > .types .type-item .preview,
+.main-window.dashboard .create-modal > .sections > .templates .template-item .preview {
+    height: 200px;
+    width: 200px;
+}
+
+
+.main-window.dashboard .create-modal > .sections > .types .type-item .label,
+.main-window.dashboard .create-modal > .sections > .templates .template-item .label {
+    text-align: center;
+    font-size: 35px;
+}
+
+.main-window.dashboard .create-modal > .sections > .types .type-item .preview canvas,
+.main-window.dashboard .create-modal > .sections > .templates .template-item .preview canvas {
+    height: 100%;
+    width: 100%;
+}
+
+.main-window.dashboard .create-modal > .sections > .templates .template-item .preview canvas {
+    background-color: var(--color-weaved);
+}
+
+
+.main-window.dashboard .create-modal > .sections > .templates .create-back-btn {
+    height: 90px;
+    width: fit-content;
+    background-color: var(--color-light);
+    border-radius: 5px;
+    position: absolute;
+    left: -40px;
+    top: -40px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0 40px 0 20px;
+    cursor: pointer;
+}
+
+.main-window.dashboard .create-modal > .sections > .templates .create-back-btn:active {
+    transform: scale(0.99);
+}
+
+.main-window.dashboard .create-modal > .sections > .templates .create-back-btn i {
+    color: var(--color-primary);
+    font-size: 30px;
+}
+
+.main-window.dashboard .create-modal > .sections > .templates .create-back-btn canvas { 
+    height: 120px;
+    width: 120px;
+    position: absolute;
+    top: -30px;
+    left: 50px;
+}
+
+.main-window.dashboard .create-modal > .sections > .templates .create-back-btn label {
+    color: var(--color-primary);
+    font-size: 40px;
+    margin-left: 130px;
+    cursor: pointer;
+}
+
+.main-window.dashboard .create-modal > .sections > .templates > header {
+    margin-left: 300px;
+    text-align: left;
+}
+
+
+
+
+.main-window.dashboard > .modals.create .create-modal { 
+    transition: 500ms ease;
+}
+
+.main-window.dashboard > .modals:not(.create) { 
+    pointer-events: none;
+    opacity: 0;
+    transition: 300ms ease-out;
+}
+
+.main-window.dashboard > .modals:not(.create) .create-modal {
+    opacity: 0;
+    transform: translateY(70px);
+    transition: 150ms ease-out;
 }

@@ -1,6 +1,27 @@
 const DashboardManager = {
     components: {
         main: $(".main-window.dashboard"),
+        modals: {
+            create: {
+                _: createModal("create", $(".main-window.dashboard .modals > .create-modal")),
+                compTemplates: {
+                    type: $(".main-window.dashboard .create-modal > .sections > .types .type-item"),
+                    template: $(".main-window.dashboard .create-modal > .sections > .templates .template-item"),
+                },
+                sections: {
+                    types: $(".main-window.dashboard .modals > .create-modal > .sections > .types"),
+                    templates: $(".main-window.dashboard .modals > .create-modal > .sections > .templates"),
+                },
+                parents: {
+                    types: $(".main-window.dashboard .modals > .create-modal .types-selection"),
+                    templates: $(".main-window.dashboard .modals > .create-modal .templates-selection"),
+                },
+                buttons: {
+                    continue: $(".main-window.dashboard .create-modal #continue-btn"),
+                    templatesBack: $(".main-window.dashboard .create-modal > .sections > .templates .create-back-btn"),
+                }
+            }
+        },
         gallery: {
             header: $(".main-window.dashboard > .gallery > header"),
             racks: $(".main-window.dashboard > .gallery .racks"),
@@ -35,17 +56,34 @@ const DashboardManager = {
         previewGap: 100
     },
 
+
+    PRODUCT_TYPES: [],
+    TEMPLATES: [],
+
     async initialize() {
         const productsIds = LocalDB.get("products");
         this.products = productsIds.map(pid => Product.load(pid));
 
         // Temporary
         this.products.forEach(p => p.id = generateId());
+
+
+        // Load product types
+        this.PRODUCT_TYPES = [
+            { name: "Bag", sample: Product.Bag() },
+            { name: "Bag 2", sample: Product.Bag() },
+            { name: "Bag 3", sample: Product.Bag() },
+        ];
+
+        // Load templates
+        this.TEMPLATES = [
+            { name: "Blank", sample: DesignMatrix.newBlank() },  
+            { name: "Blank 2", sample: DesignMatrix.newBlank() },  
+        ];
         
 
         await this.initGallery();
         await this.initShowcase();
-
     },
 
     async initGallery() {
@@ -67,6 +105,7 @@ const DashboardManager = {
 
         
         // Setup buttons
+        components.buttons.create.onclick = () => this.create();
 
         // Show products
         const products = this.products;
@@ -203,6 +242,117 @@ const DashboardManager = {
         this.components.main.classList.remove("showcasing");
         activePreview.style.transition = "150ms ease-out";
         activePreview.classList.remove("active"); 
+    },
+
+
+    async create() {
+        const modalComponents = this.components.modals.create;
+        const modal = modalComponents._;
+
+        const states = {
+            section: "types",
+            activeTypeIndex: 0,
+            activeTemplateIndex: 0
+        };
+
+        function showSection(section) {
+            states.section = section;
+            [ "types", "templates" ].forEach(s =>
+                s === section ? modal.classList.add(s) : modal.classList.remove(s));
+        }
+
+
+        // Setup buttons
+        modalComponents.buttons.continue.onclick = () => {
+            if(states.section === "types") showSection("templates");
+            else if(states.section === "templates") this.makeProduct(
+                this.PRODUCT_TYPES[states.activeTypeIndex],
+                this.TEMPLATES[states.activeTemplateIndex]
+            )
+        };
+
+        modalComponents.buttons.templatesBack.onclick = () => {
+            if(states.section === "templates") showSection("types");
+        };
+
+
+        // Render types
+        const typesParent = modalComponents.parents.types;
+        typesParent.innerHTML = "";
+
+        const typeElements = [];
+        function setActiveType(index) {
+            states.activeTypeIndex = index;
+            typeElements.forEach((e, i) => i === index ?
+                e.classList.add("active") : e.classList.remove("active"));
+
+            const activeType = DashboardManager.PRODUCT_TYPES[index];
+            modalComponents.buttons.templatesBack.querySelector("label").innerText = activeType.name;
+            const canvas = modalComponents.buttons.templatesBack.querySelector("canvas");
+            renderProduct(canvas, activeType.sample, { qualityScale: 1 });
+        }
+
+        for(let i = 0; i < this.PRODUCT_TYPES.length; i++) {
+            const typeElement = modalComponents.compTemplates.type.cloneNode(true);
+            typeElement.classList.remove("template");
+
+            const typeItem = this.PRODUCT_TYPES[i];
+            const sample = typeItem.sample;
+            const canvas = typeElement.querySelector("canvas");
+            await renderProduct(canvas, sample, { qualityScale: 1 });
+
+            typeElement.querySelector(".label").innerText = typeItem.name;
+            
+            typesParent.appendChild(typeElement);
+            typeElements.push(typeElement);
+
+            typeElement.onclick = () => setActiveType(i);
+        }
+
+        setActiveType(states.activeTypeIndex);
+
+
+
+
+        // Render design templates
+        const templatesParent = modalComponents.parents.templates;
+        templatesParent.innerHTML = "";
+
+        function setActiveTemplate(index) {
+            states.activeTemplateIndex = index;
+            templateElements.forEach((e, i) => i === index ?
+                e.classList.add("active") : e.classList.remove("active"));
+        }
+        
+        const templateElements = [];
+        for(let i = 0; i < this.TEMPLATES.length; i++) {
+            const templateElement = modalComponents.compTemplates.template.cloneNode(true);
+            templateElement.classList.remove("template");
+
+            const templateItem = this.TEMPLATES[i];
+            const canvas = templateElement.querySelector("canvas");
+            await renderDesign(canvas, templateItem.sample);
+
+            templateElement.querySelector(".label").innerText = templateItem.name;
+
+            templatesParent.appendChild(templateElement);
+            templateElements.push(templateElement);
+
+            templateElement.onclick = () => setActiveTemplate(i);
+        }
+
+        setActiveTemplate(states.activeTemplateIndex);
+
+
+        
+
+        // Show templates
+        showSection("types");
+        modal.show();
+    },
+
+    makeProduct(typeItem, templateItem) {
+        console.log(`About to create a product (${typeItem.name} - ${templateItem.name})`);
     }
 }
 

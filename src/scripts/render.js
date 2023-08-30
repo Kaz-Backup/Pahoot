@@ -270,6 +270,32 @@ async function renderEmbroiderMatrix(canvas, embroiderMatrix, viewSettings) {
     if(clipPath) ctx.restore();
 }
 
+async function renderDesign(canvas, designMatrix, options) {
+    let { grid, offset, apparentBlockSize } = options || {};
+    if(!offset) offset = [ 0, 0 ];
+    if(!apparentBlockSize) apparentBlockSize = canvas.width / designMatrix.size[0];
+
+    function getApparentPosition(position) {
+        return subtractVectors(scaleVector(position, apparentBlockSize), offset);
+    }
+    
+    const ctx = canvas.getContext("2d");
+    ctx.strokeStyle = "rgba(150, 150, 150, 0.2)";
+    ctx.lineWidth = 2;
+    for(let r = 0; r < designMatrix.size[1]; r++) {
+        for(let c = 0; c < designMatrix.size[0]; c++) {
+            const color = designMatrix.pixels[r][c] || "";
+            const apparentPos = getApparentPosition([c, r]);
+            ctx.save();
+            ctx.fillStyle = color;
+            const rect = [...apparentPos, apparentBlockSize, apparentBlockSize];
+            if(color) ctx.fillRect(...rect);
+            if(grid) ctx.strokeRect(...rect);
+            ctx.restore();
+        }
+    }
+}
+
 async function renderProduct(canvas, product, options) {
     let { qualityScale } = options || {};
 

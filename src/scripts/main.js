@@ -47,7 +47,8 @@ function createModal(key, element) {
         onInternalClosed: () => {},
         get(selector) { return element.querySelector(selector); },
         close: () => closeModal(),
-        show: () => showModal()
+        show: () => showModal(),
+        get classList() { return element.classList }
     };
 
     const closeBtn = element.querySelector(".close-btn");

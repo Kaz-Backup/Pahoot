@@ -34,7 +34,11 @@ body {
 }
 
 .template {
-    display: none;
+    display: none !important;
+}
+
+.hidden {
+    display: none !important;
 }
 
 .logo {

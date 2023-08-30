@@ -213,7 +213,7 @@ const DesignManager = {
 
     setColors(index) {
         this.states.activeColorsIndex = index;
-        this.setMode("paint");
+        if(this.states.mode === "erase") this.setMode("paint");
         this.refreshStatesView();
     },
 
@@ -229,6 +229,36 @@ const DesignManager = {
                 color: mode === "paint" ? 
                     this.states.activeColors.fill : "" 
             });
+        } else if(mode === "bucket") {
+            const pixels = this.matrices.design.pixels;
+            const visited = [ ...pixels.map(r => r.map(c => false)) ];
+            const startColor = pixels[cell[1]][cell[0]];
+            const roots = [ cell ];
+            const painted = [];
+            while(roots.length > 0) {
+                const rcell = roots.pop();
+                const [ c, r ] = rcell;
+                if(c >= 0 && c < pixels[0].length && 
+                    r >=0 && r < pixels.length &&
+                    !visited[r][c]) {
+                    visited[r][c] = true;
+                    if(pixels[r][c] === startColor) {
+                        painted.push(rcell);
+
+                        // Add neighboring cells
+                        roots.push(...[[1,0],[-1,0],[0,1],[0,-1]].map(o => addVectors(rcell, o)));
+                    }
+                }
+            }
+
+            if(painted.length > 0) {
+                painted.forEach(cell => {
+                    this.states.collector.push([ cell, startColor, this.states.activeColors.fill ]);
+                    pixels[cell[1]][cell[0]] = this.states.activeColors.fill;
+                });
+                this.flush();
+                this.renderAll();
+            }
         }
     },
 
@@ -333,26 +363,11 @@ const DesignManager = {
         ctx.fillStyle = "#ffffff";
         ctx.strokeStyle = "#997460";
         ctx.lineWidth = 15;
-        this.log(this.getApparentPosition(0, 0), 2);
-        this.log(totalSize, 3);
         ctx.fillRect(...this.getApparentPosition([0, 0]), ...totalSize);
         ctx.strokeRect(...this.getApparentPosition([0, 0]), ...totalSize);
 
         // Render Pixels
-        ctx.strokeStyle = "#ddd";
-        ctx.lineWidth = 2;
-        for(let r = 0; r < designMatrix.size[1]; r++) {
-            for(let c = 0; c < designMatrix.size[0]; c++) {
-                const color = designMatrix.pixels[r][c] || "";
-                const apparentPos = this.getApparentPosition([c, r]);
-                ctx.save();
-                ctx.fillStyle = color;
-                const rect = [...apparentPos, apparentBlockSize, apparentBlockSize];
-                ctx.fillRect(...rect);
-                ctx.strokeRect(...rect);
-                ctx.restore();
-            }
-        }
+        await renderDesign(canvas, designMatrix, { grid: true, ...this.view });
 
         await new Promise(resolve => setTimeout(resolve, this.renderStates.cooldownTime));
         this.renderStates.cooldown = false;
@@ -422,7 +437,6 @@ const DesignManager = {
                 type: "design",
                 subject: args
             });
-            this.log(changeState, 3);
         } else if(action === "bucket") {
             // changeState = new ChangeState({
             //     action: "bucket",
