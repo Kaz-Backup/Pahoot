@@ -110,7 +110,7 @@ const DashboardManager = {
 
         // Show products
         const products = this.products;
-        const maxPPR = 3;
+        const maxPPR = 4;
         const maxRacks = Math.ceil(products.length / maxPPR) || 1;
         const elements = [];
         for(let i = 0; i < maxRacks; i++) {
@@ -270,10 +270,13 @@ const DashboardManager = {
         // Setup buttons
         modalComponents.buttons.continue.onclick = () => {
             if(states.section === "types") showSection("templates");
-            else if(states.section === "templates") this.makeProduct({ 
-                type: this.PRODUCT_TYPES[states.activeTypeIndex],
-                template: this.TEMPLATES[states.activeTemplateIndex] 
-            })
+            else if(states.section === "templates") {
+                modal.close();
+                this.makeProduct({ 
+                    type: this.PRODUCT_TYPES[states.activeTypeIndex],
+                    template: this.TEMPLATES[states.activeTemplateIndex] 
+                });
+            }
         };
 
         modalComponents.buttons.templatesBack.onclick = () => {

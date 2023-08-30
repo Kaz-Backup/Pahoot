@@ -380,7 +380,8 @@ class EmbroiderMatrix {
 
         if(!colors) colors = {
             fill: "#B8A976",
-            stroke: "#A39567"
+            // stroke: "#A39567"
+            stroke: "rgba(0,0,0,0.15)"
         };
         
         const size = [ 

@@ -29,7 +29,6 @@ const WorkshopManager = {
      */
     async initialize(options) {
         this.events = options.events;
-        preloadAllBlockImages();
         const { product } = options;
 
         this.product = product;
@@ -37,20 +36,21 @@ const WorkshopManager = {
         // Setup part controls
         const partsParent = this.components.parts;
         partsParent.innerHTML = "";
-        
+
         for(const part of product.parts) {
             const partElement = this.components.templates.part.cloneNode(true);
             partElement.classList.remove("template");
             partElement.querySelector(".part-label").innerText = part.label;
 
             const embroideryLayer = part.layers.find(l => l.type === "embroidery");
+            let embroiderMatrix = embroideryLayer ? embroideryLayer.embroiderMatrix : null;
             if(embroideryLayer) {
                 partElement.classList.add("embroidery");
 
                 // Setup embroidery and design buttons
                 partElement.querySelector(".embroider-btn").onclick = () => 
                     this.events.onEmbroider({
-                        embroiderMatrix: embroideryLayer.embroiderMatrix,
+                        embroiderMatrix: embroiderMatrix,
                         designMatrix: embroideryLayer.designMatrix
                     });
 
@@ -62,6 +62,7 @@ const WorkshopManager = {
 
             const colors = part.colors || [];
             const layers = part.layers;
+
             const layersParent = partElement.querySelector(".layers");
             for(let i = 0; i < colors.length; i++) {
                 const layerElement = this.components.templates.layer.cloneNode(true);
@@ -79,7 +80,10 @@ const WorkshopManager = {
                 const pickButton = layerElement.querySelector("button");
                 pickButton.onclick = async () => {
                     const pickedColor = await this.pickColor(colors[i]);
-                    if(pickedColor) colors[i] = pickedColor;
+                    if(pickedColor) {
+                        colors[i] = pickedColor;
+                        if(embroiderMatrix) embroiderMatrix.weavedColors.fill = pickedColor;
+                    }
                     this.refreshStates();
                     this.save();
                 };

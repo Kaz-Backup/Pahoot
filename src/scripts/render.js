@@ -50,7 +50,7 @@ function getImageFromSVG(svgElement) {
 }
 
 async function getBlockImage({ block, colors }) {
-    const key = `${block}--${colors.fill}.${colors.stroke}`;
+    const key = `${block}`;
     if(key in BlockImages) return BlockImages[key];
 
     // Create SVG DOM
@@ -71,13 +71,12 @@ async function preloadBlockImages(blocks) {
 *      size: number[], parent: HTMLCanvasElement}} options 
 */
 async function renderWeavedBlock(options) {
-   const { colors, orientation, position, size, parent } = options;
+   const { orientation, position, size, parent } = options;
 
-   const ctx = parent.getContext("2d");
-   const blockImage = await getBlockImage({ 
-       block: `weaved-${orientation}`,
-       colors
-   });
+    const ctx = parent.getContext("2d");
+    const blockImage = await getBlockImage({ 
+        block: `weaved-${orientation}`
+    });
 
    ctx.drawImage(blockImage, position[0], position[1], size[0], size[1]);
 }
@@ -93,13 +92,16 @@ async function renderThread(options) {
    const ctx = parent.getContext("2d");
 
    const blockImage = await getBlockImage({ 
-       block: `thread-${orientation}`, colors
+       block: `thread-${orientation}`
    });
 
    ctx.save();
    ctx.beginPath();
    ctx.rect(position[0], position[1], size[0], size[1]);
    ctx.clip();
+
+   ctx.fillStyle = colors.fill;
+   ctx.fillRect(position[0], position[1], size[0], size[1]);
    
    if(orientation === "h") {
        const blocksCount = Math.ceil(size[0] / blockSize);
@@ -195,6 +197,11 @@ async function renderEmbroiderMatrix(canvas, embroiderMatrix, viewSettings) {
         ctx.save();
         clipFrame();
     }
+
+    // Render background weaved
+    ctx.fillStyle = embroiderMatrix.weavedColors.fill;
+    ctx.fillRect(...getApparentPosition([0,0]),
+        ...getApparentSize([ cols, rows ]));
     
     // Render weaved blocks
     for(let wr = 0; wr < rows; wr++) {
@@ -334,7 +341,7 @@ async function renderProduct(canvas, product, options) {
                 renderActions.push([ layer.z, async () => {
                     ctx.save();
                     ctx.scale(qualityScale, qualityScale);
-                    layer.embroiderMatrix.weavedColors = { fill: colors[layer.colorIndex], stroke: "rgba(0,0,0,0.15)"};
+                    // layer.embroiderMatrix.weavedColors = { fill: colors[layer.colorIndex], stroke: "rgba(0,0,0,0.15)"};
                     await renderEmbroiderMatrix(canvas, layer.embroiderMatrix, {
                         offset: [0,0],
                         clipPath: new Path2D(layer.embroiderMatrix.frame.path),
@@ -359,7 +366,7 @@ async function preloadAllBlockImages() {
 
     for(const block of blocks) {
         loadables.push(...COLORS.map(color => ({
-            block, colors: { fill: color, stroke: "rgba(100,100,100,0.15)" }
+            block, colors: { fill: "rgba(0,0,0,0)", stroke: "rgba(0, 0, 0, 0.1)" }
         })));
     }
 

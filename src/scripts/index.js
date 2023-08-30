@@ -70,6 +70,7 @@ const GameManager = {
     },
 
     async initialize() {
+        await preloadAllBlockImages();
         this.openDashboard();
     },
 
