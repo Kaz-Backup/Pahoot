@@ -172,7 +172,7 @@ const WorkshopManager = {
     },
 
     save() {
-        this.product.save();
+        this.product.save(true);
     }
 }
 
