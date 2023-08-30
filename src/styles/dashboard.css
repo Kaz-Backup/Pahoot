@@ -252,7 +252,7 @@
 .main-window.dashboard > .showcase > footer {
     position: absolute;
     bottom: 40px;
-    left: 40px;
+    right: 40px;
     transition: 900ms ease;
 }
 
