@@ -8,7 +8,7 @@ function createElement(tagName, { classList, id, listeners, innerHTML, children,
     if(id) element.setAttribute("id", id);
     if(listeners) {
         for(const event in listeners) {
-            element.addEventListener(event, listeners[event]);
+            element[`on${event}`] = listeners[event];
         }
     }
     if(innerHTML) element.innerHTML = innerHTML;
@@ -100,6 +100,11 @@ function getAllProducts() {
 function addProduct(product) {
     const products = getAllProducts();
     products.push(product.id);
+    LocalDB.save("products", products);
+}
+
+function deleteProduct(product) {
+    const products = getAllProducts().filter(p => p.id !== product.id);
     LocalDB.save("products", products);
 }
 

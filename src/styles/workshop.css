@@ -206,6 +206,10 @@
     transition: 500ms ease;
 }
 
+.main-window.workshop > .modals {
+    transition: 250ms ease;
+}
+
 .main-window.workshop > .modals:not(.color-picker,.rename) { 
     pointer-events: none;
     opacity: 0;

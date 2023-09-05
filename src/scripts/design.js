@@ -152,7 +152,7 @@ const DesignManager = {
 
 
         // Setup undo and redo events
-        document.addEventListener("keydown", (event) => {
+        document.onkeydown = (event) => {
             if (event.ctrlKey || event.metaKey) {
                 if (event.key === "z") {
                     event.preventDefault();
@@ -162,7 +162,7 @@ const DesignManager = {
                     this.redo();
                 }
             }
-        });
+        };
 
 
 

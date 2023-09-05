@@ -57,26 +57,26 @@ class MouseController {
             this.element = element;
             this.listeners = {};
             
-            // element.addEventListener("click", 
+            // element.onclick", 
             //     e => this.trigger("click", { position: getClientCoords(element, e) }));
             
-            element.addEventListener("mouseleave", 
-                e => this.trigger("leave", { position: getClientCoords(element, e) }));
+            element.onmouseleave = e => 
+                this.trigger("leave", { position: getClientCoords(element, e) });
             
 
             let isDown = false;
             let downCoords;
             let spanContext = {};
 
-            element.addEventListener("mousedown", e => {
+            element.onmousedown = e => {
                 const coords = getClientCoords(element, e);
                 isDown = true;
                 downCoords = getClientCoords(element, e);
 
                 this.trigger("down", { position: coords, context: spanContext });
-            });
+            };
 
-            element.addEventListener("mouseup", e => {
+            element.onmouseup = e => {
                 const coords = getClientCoords(element, e);
                 
                 if(downCoords) {
@@ -97,9 +97,9 @@ class MouseController {
                 
                 isDown = false;
                 downCoords = null;
-            });
+            };
 
-            element.addEventListener("mouseout", e => {
+            element.onmouseout = e => {
                 const coords = getClientCoords(element, e);
                 
                 if(downCoords) {
@@ -115,9 +115,9 @@ class MouseController {
                 
                 isDown = false;
                 downCoords = null;
-            });
+            };
 
-            element.addEventListener("mousemove", e => {
+            element.onmousemove = e => {
                 const coords = getClientCoords(element, e);
 
                 if(isDown) {
@@ -133,14 +133,14 @@ class MouseController {
                         position: coords
                     });
                 }
-            });
+            };
 
-            element.addEventListener("wheel", e => {
+            element.onwheel = e => {
                 if(e.deltaY === 0) return;
                 const direction = e.deltaY < 0 ? 1 : -1;
                 const coords = getClientCoords(element, e);
                 this.trigger("scroll", { direction, position: coords });
-            });
+            };
         }
     }
 
