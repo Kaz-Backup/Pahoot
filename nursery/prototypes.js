@@ -16,6 +16,8 @@
 //  2: Edge darker
 //  
 
+
+
 const xml2js = require("xml2js");
 const xml2json = require("xml2json");
 const fs = require("fs/promises");
@@ -31,7 +33,11 @@ const Parser = new xml2js.Parser({
     explicitChildren: true,
     preserveChildrenOrder: true,
     explicitRoot: true,
-    explicitArray: true
+    explicitArray: true,
+    attrValueProcessors: [ function (value, name) {
+        if(!isNaN(Number(value))) return Number(value);
+        return value;
+    } ]
 });
 
 
@@ -42,20 +48,27 @@ async function parseXML(xml) {
 
         let label;
         let type;
+        let ref;
         if(obj.attributes && obj.attributes.id) {
-            const id = obj.attributes.id;
+            const id = obj.attributes.id.split("_")[0];
             const [ _label, _type ] = id.split("@");
             label = _label ? _label : undefined;
-            type = _type ? _type.split("_")[0] : undefined;
+
+            if(_type) {
+                const [ __type, _ref ] = _type.split("#");
+                type = __type;
+                if(_ref) ref = Number(_ref);
+            }
         }
 
-        if(parent && parent.name === "g" && parent.type !== "group" && !type) {
+        if(parent && parent.name === "g" && ["color", "fixed"].includes(parent.type) && !type) {
             type = parent.type;
+            if(parent.ref) ref = parent.ref;
         }
 
         const cleaned = {
             name: obj["#name"],
-            type, label,
+            type, label, 
             ...obj.attributes,
             id: undefined,
         };
